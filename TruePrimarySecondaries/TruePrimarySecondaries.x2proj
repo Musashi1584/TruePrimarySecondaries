@@ -1,0 +1,133 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Default" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Guid>76e33f12-8882-45e1-b0ee-3d9741d67521</Guid>
+    <Name>True Primary Secondaries</Name>
+    <Description>Adds melee weapons and pistols as primary weapons
+
+tags= war of the chosen, weapon, seconary, primary, gameplay</Description>
+    <SteamPublishID>0</SteamPublishID>
+    <AssemblyName>TruePrimarySecondaries</AssemblyName>
+    <RootNamespace>TruePrimarySecondaries</RootNamespace>
+    <ProjectGuid>{e305913e-0387-4f0c-a51c-dcae5ebbdd62}</ProjectGuid>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <OutputPath>bin\Debug\</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="Config\" />
+    <Folder Include="Content\" />
+    <Folder Include="Localization\" />
+    <Folder Include="CookedPCConsole" />
+    <Folder Include="Src\" />
+    <Folder Include="Src\TruePrimarySecondaries" />
+    <Folder Include="Src\PrimarySecondaries\" />
+    <Folder Include="Src\PrimarySecondaries\Classes\" />
+    <Folder Include="Src\TruePrimarySecondaries\Classes" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Config\XComArmory_Overhaul_Defaults.ini">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Config\XComClassData.ini">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Config\XComGameData.ini">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Config\XComTruePrimarySecondaries.ini">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Content\TruePrimarySecondaries_Armory.upk">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Content\TruePrimarySecondaries_AT.upk">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Content\PrimaryPistolsMod.upk">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Content\TruePrimarySecondariesMod.upk">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Content\TruePrimarySecondaries_ANIM.upk">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Content\TruePrimarySecondaries_AutoPistol.upk">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Content\TruePrimarySecondaries_Pistol.upk">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Content\TruePrimarySecondaries_PrimaryMelee.upk">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Content\TruePrimarySecondaries_Sockets.upk">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Content\TruePrimarySecondaries_Target.upk">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Notes.txt">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="ReadMe.txt" />
+    <Content Include="ModPreview.jpg" />
+    <Content Include="Config\XComEditor.ini" />
+    <Content Include="Config\XComEngine.ini" />
+    <Content Include="Config\XComGame.ini" />
+    <Content Include="Localization\XComGame.int" />
+    <Content Include="Src\PrimarySecondaries\Classes\AnimNotify_FireOffHandPistol.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\PrimarySecondaries\Classes\AnimNotify_Slomo.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\PrimarySecondaries\Classes\AnimNotify_TriggerHitReaction.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\PrimarySecondaries\Classes\AnimNotify_UnitHitCustomDeath.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\TruePrimarySecondaries\Classes\DropShipMatinee_Actor.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\TruePrimarySecondaries\Classes\MSEventListenerTemplate.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\TruePrimarySecondaries\Classes\MSEventListener_StrategyListener.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\TruePrimarySecondaries\Classes\ShellMapMatinee.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\TruePrimarySecondaries\Classes\UITacticalQuickLaunch_UnitSlot_PrimarySecondaries.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\TruePrimarySecondaries\Classes\X2Ability_PrimarySecondaries.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\TruePrimarySecondaries\Classes\X2Condition_NotDualPistols.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\TruePrimarySecondaries\Classes\X2Condition_PrimaryMelee.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\TruePrimarySecondaries\Classes\X2Condition_PrimaryMeleeDisorient.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\TruePrimarySecondaries\Classes\X2DownloadableContentInfo_TruePrimarySecondaries.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\TruePrimarySecondaries\Classes\X2EventListener_PrimarySecondariesTactical.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\TruePrimarySecondaries\Classes\X2EventListener_PrimarySecondaries_Strategy.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\TruePrimarySecondaries\Classes\X2Item_PrimarySecondaries.uc">
+      <SubType>Content</SubType>
+    </Content>
+  </ItemGroup>
+  <Import Project="$(MSBuildLocalExtensionPath)\XCOM2.targets" />
+</Project>

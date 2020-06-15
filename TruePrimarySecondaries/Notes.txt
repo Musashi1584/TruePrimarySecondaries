@@ -1,0 +1,109 @@
+HL_ShellScreenIdleA -> AnimSet'HQ_ANIM.Anims.AS_ShellScreen'
+Idle_Normal_TG01 -> AnimSet'HQ_ANIM.Anims.AS_Armory'
+LL_IdleHiddenMovementA -> AnimSet'Soldier_ANIM.Anims.AS_Soldier'
+
+
+[Personality_TLE1 X2SoldierPersonalityTemplate]
+FriendlyName="Angry"
+
+[Personality_TLE2 X2SoldierPersonalityTemplate]
+FriendlyName="Cocky"
+
+[Personality_TLE3 X2SoldierPersonalityTemplate]
+FriendlyName="Suspicious"
+
+[Personality_TLE4 X2SoldierPersonalityTemplate]
+FriendlyName="Smug"
+
+[Personality_TLE5 X2SoldierPersonalityTemplate]
+FriendlyName="Let's Go!"
+
+AnimSet'CIN_Previs_ANIM.Anims.AS_Soldier'
+
+Idle_HappyGoLuckyB_TG01
+Idle_TLE2_TG02
+Idle_TLE5_TG02
+
+Missing Animsequences:
+ADD_HL_Kidnap		
+ADD_HL_Shadowbind_FadeIn		
+ADD_HL_Shadowbind_FadeOut		
+ADD_Shadowbind_Death		
+ADD_Shadowbind_Restart		
+ADD_SpectralArmy_Restart		
+ADD_SpectralArmy_Stop		
+ADD_Zero
+FF_SkulljackedLoopA		
+FF_SkulljackedMissA		
+FF_SkulljackedStartA		
+FF_SkulljackedStopA		
+FF_SkulljackerLoopA
+FF_SkulljackerStartA		
+FF_SkulljackerStopA		
+HL_BindHurtFrontA
+HL_CarryBodyLoopA		
+HL_CarryBodyStopMF		
+HL_CarryBodyStopMM		
+HL_DazedIdleA		
+HL_DazedStartA		
+HL_DazedStopA
+HL_EvacStartA		
+HL_ExtractKnowledge		
+HL_ExtractKnowledge_Pose		
+HL_FireA_BaseCannon		
+HL_FireStartA		
+HL_FireStopA
+HL_HackLoopA		
+HL_HackStartA		
+HL_HackStopA
+HL_Kidnap
+HL_Shadowbind_FadeIn_base		
+HL_Shadowbind_FadeOut_base		
+HL_Shadowbind_Target		
+HL_Shadowbind_TargetShadow
+HL_StunnedIdleA		
+HL_StunnedStartA		
+HL_StunnedStopA
+LL_FireStartA		
+LL_FireStopA
+MV_ClimbDrainDwn_LoopA		
+MV_ClimbDrainDwn_StartA		
+MV_ClimbDrainDwn_StopA		
+MV_ClimbDrainUp_LoopA		
+MV_ClimbDrainUp_StartA		
+MV_ClimbDrainUp_StopA		
+MV_ClimbDropHigh_StartA		
+MV_ClimbDropHigh_StartWallA		
+MV_ClimbDropHigh_StopA		
+MV_ClimbDropLow_StartA		
+MV_ClimbDropLow_StartWallA		
+MV_ClimbDropLow_StopA		
+MV_ClimbLadderDwn_LoopA		
+MV_ClimbLadderDwn_StartA		
+MV_ClimbLadderDwn_StopA		
+MV_ClimbLadderUp_LoopA		
+MV_ClimbLadderUp_StartA		
+MV_ClimbLadderUp_StopA		
+MV_ClimbLowObject_DwnA		
+MV_ClimbLowObject_Over1TileA		
+MV_ClimbLowObject_Over2TilesA		
+MV_ClimbLowObject_UpA
+NO_BindLoopA		
+NO_BindStartA		
+NO_BindStopA		
+NO_DoorOpenA		
+NO_GrappleFireA		
+NO_GrappleFireMissA		
+NO_GrapplePullStartA		
+NO_GrapplePullStopA		
+NO_GrappleStartA		
+NO_GrappleStopA
+NO_StrangleStartA		
+NO_StrangleStopA
+Zero
+
+
+
+Female
+Arms 15° right and left
+LForearm 10° to the right
