@@ -1,40 +1,36 @@
-﻿[h1]Primary Pistols and Primary Melee Weapons[/h1]
+﻿[h1]Experimental new version of Primary Secondaries[/h1]
 
-Update: Now features dedcated animations for primary swords, primary pistols and primary autopistols.
-This includes tactical animations, armory animations, starting screen, skyranger drop and photobooth poses.
+Please read the description before using this mod!
 
-Requires War of the Chosen Expansion and the WotC Community Highlander.
+This mod requires the BETA Version of the Highlander and the Ability To Slot Reassignment mod to work. Dont skip the required items!
+Dont run this mod together with the old PrimarySecondaries mod. If you use this one deactivate the old one.
 
-Please don't use this together with my "Primary Pistols" mod. The mods collide with each other.
+So what is the difference to the old Primary Secondaries you might ask yourself.
 
-This mod generates primary variants of all pistols and melee weapons in the game.
+The old Primary Secondaries mod is generating primary versions of secondary weapon templates. This resulted in some issue like duplicate variants of unique weapons and 
+the need of attaching updates to primary and secondary weapons separately.
 
-They are unlocked together with their secondary counterpart.
+The new version allows you to equip the exact same melee weapons and pistols/autopistols in the secondary and primary slot.
+So e.g. with this mod if you equip the chosen katana in the primary slot you wont be able to equip it in the secondary slot since you have only one unique item you can equip in either slot.
+If you have upgraded a pistol with some weapon upgrades you can now just remove the pistol from a secondary slot of a soldier and give it to another soldier in the primary slot.
 
-It supports all DLC and XPack weapons and every melee weapon or pistol of any mod,
-since the the primary weapons are generated at game initializtion from whatever you have installed.
+Sharpshooter, Rangers, Specialist, Grenadier and PsiOperative are enabled to use primary melee weapons, primary pistols and templar sidearms.
 
-Additionally this mod incorporates the Pistol Upgrades mod which means it adds
-visual attachments for the vanilla pistols (primary and secondary).
+[h1]FAQ[/h1]
 
-Primary Pistols have a clip size of 6
-and they provide +1 mobility and -20% detection radius and +1 damage and a slightly better range table than secondary pistols(can be disabled or modified in XComPrimarySecondaries.ini).
+[b][i]Do i really need the BETA Highlander?[/i][/b]
+At this point yes absolutely. You can safely switch to the beta highlander in running campaigns.
 
-Also adds a "Empty secondary" item that grants a 15% mobility bonus.
+[b][i]Do i need to start a new campaign when switching from the old primary secondaries mod?[/i][/b]
+Its recommended, it might work for running campaigns as well but i dont take any responsibility if this causes issues.
 
-Specialist, Grenadier and PsiOperative are enabled to use primary melee weapons, primary pistols and templar sidearms.
-Sharpshooter can use primary melee weapons and Rangers Primary Pistols/Sidearms.
-This is not fully tested and could be buggy for abilities like supression e.g. Feedback is welcome.
-Also you can't use ranged abilities with swords of course.
+[b][i]Do mods that require primary secondaries work with this version as well?[/i][/b]
+All of my and iridars like dual wield melee and dual wielded pistols mod are updated to support the new version but keep in mind that this is a experimental BETA so there are probably some bugs and glitches i havent catched yet.
 
-Credits to:
-Krakah for the pistol attachments.
+[b][i]RPGO is complaining that it needs Primary Secondaries after i switched to this version[/i][/b]
+You can safely ignore that warning for now.
 
-Incompatibilities:
-Reduce Armory Clutter causes this mod not to work properly.
-Some mod added weapons have no fireing sound. Please ask the mod author of these mods to put the sound in the weapon animation.
-
-Mod troubleshooting
+[h1]Mod troubleshooting[/h1]
 https://www.reddit.com/r/xcom2mods/wiki/mod_troubleshooting
 
 [h1]Patreon[/h1]
