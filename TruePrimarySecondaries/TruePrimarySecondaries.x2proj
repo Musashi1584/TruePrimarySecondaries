@@ -44,9 +44,6 @@ tags= war of the chosen, weapon, seconary, primary, gameplay</Description>
     <Content Include="Content\TruePrimarySecondaries_AT.upk">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Content\TruePrimarySecondariesMod.upk">
-      <SubType>Content</SubType>
-    </Content>
     <Content Include="Content\TruePrimarySecondaries_ANIM.upk">
       <SubType>Content</SubType>
     </Content>
@@ -66,6 +63,9 @@ tags= war of the chosen, weapon, seconary, primary, gameplay</Description>
       <SubType>Content</SubType>
     </Content>
     <Content Include="Content\TruePrimarySecondaries_Target.upk">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Content\TruePrimarySecondaries_UI.upk">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Notes.txt">

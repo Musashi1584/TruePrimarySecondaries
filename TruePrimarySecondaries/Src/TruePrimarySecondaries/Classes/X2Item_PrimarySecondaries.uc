@@ -19,7 +19,7 @@ static function X2DataTemplate EmptySecondary()
 	Template.ItemCat = 'weapon';
 	Template.WeaponCat = 'empty';
 	Template.WeaponTech = 'conventional';
-	Template.strImage = "img:///PrimarySecondariesMod.Textures.Inv_EmptySecondary";
+	Template.strImage = "img:///TruePrimarySecondaries_UI.Textures.Inv_EmptySecondary";
 	Template.EquipSound = "Sword_Equip_Conventional";
 	Template.InventorySlot = eInvSlot_SecondaryWeapon;
 	Template.StowedLocation = eSlot_RightBack;
