@@ -6,7 +6,7 @@ event name CallMeetsConditionWithSource(XComGameState_BaseObject kTarget, XComGa
 
 	SourceUnit = XComGameState_Unit(kSource);
 
-	if (class'X2DownloadableContentInfo_TruePrimarySecondaries'.static.HasPrimaryMeleeEquipped(SourceUnit))
+	if (class'LoadoutApiFactory'.static.GetLoadoutApi().HasPrimaryMeleeEquipped(SourceUnit))
 	{
 		return 'AA_Success';
 	}
@@ -16,5 +16,5 @@ event name CallMeetsConditionWithSource(XComGameState_BaseObject kTarget, XComGa
 
 function bool CanEverBeValid(XComGameState_Unit SourceUnit, bool bStrategyCheck)
 {
-	return class'X2DownloadableContentInfo_TruePrimarySecondaries'.static.HasPrimaryMeleeEquipped(SourceUnit) && SourceUnit.IsSoldier();
+	return class'LoadoutApiFactory'.static.GetLoadoutApi().HasPrimaryMeleeEquipped(SourceUnit) && SourceUnit.IsSoldier();
 }

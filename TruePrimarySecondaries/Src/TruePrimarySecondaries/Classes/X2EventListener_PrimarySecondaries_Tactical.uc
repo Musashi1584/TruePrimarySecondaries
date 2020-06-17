@@ -31,11 +31,11 @@ static function EventListenerReturn OnOverrideClipSize(Object EventData, Object 
 	Tuple = XComLWTuple(EventData);
 	ItemState = XComGameState_Item(EventSource);
 
-	if (class'X2DownloadableContentInfo_TruePrimarySecondaries'.static.IsSecondaryPistolItem(ItemState))
+	if (class'LoadoutApiFactory'.static.GetLoadoutApi().IsSecondaryPistolItem(ItemState))
 	{
 		Tuple.Data[0].i = 99;
 	}
-	else if (class'X2DownloadableContentInfo_TruePrimarySecondaries'.static.IsPrimaryPistolItem(ItemState))
+	else if (class'LoadoutApiFactory'.static.GetLoadoutApi().IsPrimaryPistolItem(ItemState))
 	{
 		Tuple.Data[0].i = 6;
 	}
@@ -65,11 +65,11 @@ static function EventListenerReturn OnOverrideHasInfiniteAmmo(Object EventData, 
 	Tuple = XComLWTuple(EventData);
 	ItemState = XComGameState_Item(EventSource);
 
-	if (class'X2DownloadableContentInfo_TruePrimarySecondaries'.static.IsPrimaryPistolItem(ItemState))
+	if (class'LoadoutApiFactory'.static.GetLoadoutApi().IsPrimaryPistolItem(ItemState))
 	{
 		Tuple.Data[0].b = false;
 	}
-	else if (class'X2DownloadableContentInfo_TruePrimarySecondaries'.static.IsSecondaryPistolItem(ItemState))
+	else if (class'LoadoutApiFactory'.static.GetLoadoutApi().IsSecondaryPistolItem(ItemState))
 	{
 		Tuple.Data[0].b = true;
 	}

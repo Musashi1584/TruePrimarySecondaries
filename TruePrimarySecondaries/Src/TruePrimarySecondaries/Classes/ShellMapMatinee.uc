@@ -49,13 +49,13 @@ static function PatchSingleMatinee(SeqAct_Interp SeqInterp,
 		FemaleSuffix = "_F";
 	}
 
-	if(class'X2DownloadableContentInfo_TruePrimarySecondaries'.static.HasPrimaryMeleeEquipped(UnitState, SearchState))
+	if(class'LoadoutApiFactory'.static.GetLoadoutApi().HasPrimaryMeleeEquipped(UnitState, SearchState))
 	{
 		PatchAnimset = AnimSet(`CONTENT.RequestGameArchetype(default.PatchAnimsetPathPrimaryMelee $ FemaleSuffix));
 		`LOG(UnitState.GetFirstName @ "has primary melee eqipped. Adding" @ default.PatchAnimsetPathPrimaryMelee $ FemaleSuffix, class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLog, name("TruePrimarySecondaries" @ default.Class.name));
 	}
 
-	if(class'X2DownloadableContentInfo_TruePrimarySecondaries'.static.HasPrimaryPistolEquipped(UnitState, SearchState))
+	if(class'LoadoutApiFactory'.static.GetLoadoutApi().HasPrimaryPistolEquipped(UnitState, SearchState))
 	{
 		if (X2WeaponTemplate(UnitState.GetItemInSlot(eInvSlot_PrimaryWeapon, SearchState).GetMyTemplate()).WeaponCat == 'pistol')
 		{
@@ -84,7 +84,7 @@ static function PatchSingleMatinee(SeqAct_Interp SeqInterp,
 	{
 		if (Group.GroupName == 'Burnout')
 		{
-			if(!class'X2DownloadableContentInfo_TruePrimarySecondaries'.static.HasPrimaryMeleeOrPistolEquipped(UnitState, SearchState))
+			if(!class'LoadoutApiFactory'.static.GetLoadoutApi().HasPrimaryMeleeOrPistolEquipped(UnitState, SearchState))
 			{
 				`LOG(UnitState.GetItemInSlot(eInvSlot_PrimaryWeapon, SearchState) @ UnitState.GetItemInSlot(eInvSlot_SecondaryWeapon, SearchState), class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLog, name("TruePrimarySecondaries" @ default.Class.name));
 				`LOG(UnitState.GetFullName() @ "!HasPrimaryMeleeOrPistolEquipped, skipping patching", class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLog, name("TruePrimarySecondaries" @ default.Class.name));

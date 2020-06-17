@@ -77,7 +77,7 @@ static function bool CanAddItemToInventory_CH_Improved(out int bCanAddItem, cons
 {
 	local bool bEvaluate;
 
-	if (IsSecondaryPistolItem(ItemState, true) || IsSecondaryMeleeItem(ItemState, true))
+	if (Api().IsSecondaryPistolItem(ItemState, true) || Api().IsSecondaryMeleeItem(ItemState, true))
 	{
 		bCanAddItem = 1;
 		DisabledReason = "";
@@ -378,7 +378,7 @@ static function FinalizeUnitAbilitiesForInit(XComGameState_Unit UnitState, out a
 	`LOG(GetFuncName(), class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLog, 'TruePrimarySecondaries');
 	
 	// Associate all melee abilities with the primary weapon if primary melee weapons are equipped
-	if (UnitState.IsSoldier() && !HasDualMeleeEquipped(UnitState) && HasPrimaryMeleeEquipped(UnitState))
+	if (UnitState.IsSoldier() && !Api().HasDualMeleeEquipped(UnitState) && Api().HasPrimaryMeleeEquipped(UnitState))
 	{
 		for(Index = 0; Index < SetupData.Length; Index++)
 		{
@@ -391,7 +391,7 @@ static function FinalizeUnitAbilitiesForInit(XComGameState_Unit UnitState, out a
 	}
 
 	// Associate all pistol abilities with the primary weapon if primary pistol weapons are equipped
-	//if (UnitState.IsSoldier() && !HasDualPistolEquipped(UnitState) && HasPrimaryPistol(UnitState))
+	//if (UnitState.IsSoldier() && !Api().HasDualPistolEquipped(UnitState) && HasPrimaryPistol(UnitState))
 	//{
 	//	EarnedSoldierAbilities = UnitState.GetEarnedSoldierAbilities();
 	//	SecondaryItemState = UnitState.GetSecondaryWeapon();
@@ -421,7 +421,7 @@ static function UpdateWeaponAttachments(out array<WeaponAttachment> Attachments,
 
 	UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(ItemState.OwnerStateObject.ObjectID));
 
-	if(UnitState != none && HasDualMeleeEquipped(UnitState))
+	if(UnitState != none && Api().HasDualMeleeEquipped(UnitState))
 	{
 		return;
 	}
@@ -437,7 +437,7 @@ static function UpdateWeaponAttachments(out array<WeaponAttachment> Attachments,
 		NewSocket = 'Sheath';
 	}
 
-	if(NewSocket == 'None' && IsPrimaryMeleeItem(ItemState))
+	if(NewSocket == 'None' && Api().IsPrimaryMeleeItem(ItemState))
 	{
 		NewSocket = 'PrimaryMeleeLeftSheath';
 	}
@@ -507,7 +507,7 @@ static function WeaponInitialized(XGWeapon WeaponArchetype, XComWeapon Weapon, o
 
 	if (IndividualWeaponConfigLocal.bUseEmptyHandSoldierAnimations)
 	{
-		if (IsPrimaryMeleeItem(ItemState) && HasPrimaryMeleeEquipped(UnitState))
+		if (Api().IsPrimaryMeleeItem(ItemState) && Api().HasPrimaryMeleeEquipped(UnitState))
 		{
 			if (InStr(WeaponTemplate.DataName, "SpecOpsKnife") == INDEX_NONE)
 			{
@@ -519,7 +519,7 @@ static function WeaponInitialized(XGWeapon WeaponArchetype, XComWeapon Weapon, o
 			}
 		}
 			
-		if (IsPrimaryPistolItem(ItemState) && HasPrimaryPistolEquipped(UnitState))
+		if (Api().IsPrimaryPistolItem(ItemState) && Api().HasPrimaryPistolEquipped(UnitState))
 		{
 			if (WeaponTemplate.WeaponCat == 'sidearm')
 			{
@@ -533,7 +533,7 @@ static function WeaponInitialized(XGWeapon WeaponArchetype, XComWeapon Weapon, o
 	}
 	else
 	{
-		if (IsPrimaryMeleeItem(ItemState) && HasPrimaryMeleeEquipped(UnitState))
+		if (Api().IsPrimaryMeleeItem(ItemState) && Api().HasPrimaryMeleeEquipped(UnitState))
 		{
 			Weapon.DefaultSocket = 'R_Hand';
 		
@@ -550,7 +550,7 @@ static function WeaponInitialized(XGWeapon WeaponArchetype, XComWeapon Weapon, o
 				AnimSetPaths.AddItem("TruePrimarySecondaries_ANIM.Anims.AS_KnifeMelee");
 			}
 		}
-		else if (IsPrimaryPistolItem(ItemState) && HasPrimaryPistolEquipped(UnitState))
+		else if (Api().IsPrimaryPistolItem(ItemState) && Api().HasPrimaryPistolEquipped(UnitState))
 		{
 			Weapon.DefaultSocket = 'R_Hand';
 
@@ -584,16 +584,16 @@ static function WeaponInitialized(XGWeapon WeaponArchetype, XComWeapon Weapon, o
 				}
 			}
 		}
-		else if (IsSecondaryMeleeItem(ItemState) && HasPrimaryPistolEquipped(UnitState))
+		else if (Api().IsSecondaryMeleeItem(ItemState) && Api().HasPrimaryPistolEquipped(UnitState))
 		{
 			AnimSetPaths.AddItem("TruePrimarySecondaries_Pistol.Anims.AS_SecondarySword");
 		}
-		else if (IsSecondaryPistolItem(ItemState) && WeaponTemplate.WeaponCat == 'sidearm')
+		else if (Api().IsSecondaryPistolItem(ItemState) && WeaponTemplate.WeaponCat == 'sidearm')
 		{
 			// Patching the default autopistol template here so other soldiers than templars can use it
 			AnimSetPaths.AddItem("TruePrimarySecondaries_AutoPistol.Anims.AS_AutoPistol_Secondary");
 		}
-		if (IsSecondaryPistolItem(ItemState) && HasPrimaryMeleeEquipped(UnitState))
+		if (Api().IsSecondaryPistolItem(ItemState) && Api().HasPrimaryMeleeEquipped(UnitState))
 		{
 			bResetAnimsets = false;
 			AnimSetPaths.AddItem("TruePrimarySecondaries_PrimaryMelee.Anims.AS_SecondaryPistol");
@@ -662,7 +662,7 @@ static function UnitPawnPostInitAnimTree(XComGameState_Unit UnitState, XComUnitP
 		return;
 	}
 
-	if (HasPrimaryPistolEquipped(UnitState))
+	if (Api().HasPrimaryPistolEquipped(UnitState))
 	{
 		AnimTreeTemplate = AnimTree(`CONTENT.RequestGameArchetype("TruePrimarySecondaries_AT.AT_Soldier", class'AnimTree'));
 		SkelComp.SetAnimTreeTemplate(AnimTreeTemplate);
@@ -685,7 +685,7 @@ static function UpdateAnimations(out array<AnimSet> CustomAnimSets, XComGameStat
 
 	CustomAnimSets.AddItem(AnimSet(`CONTENT.RequestGameArchetype("TruePrimarySecondaries_Target.Anims.AS_Advent")));
 	
-	if (HasPrimaryMeleeOrPistolEquipped(UnitState))
+	if (Api().HasPrimaryMeleeOrPistolEquipped(UnitState))
 	{
 		FindIndividualWeaponConfig(UnitState.GetPrimaryWeapon(), IndividualWeaponConfigLocal);
 		
@@ -703,7 +703,7 @@ static function UpdateAnimations(out array<AnimSet> CustomAnimSets, XComGameStat
 			FemaleSuffix = "_F";
 		}
 
-		if (HasPrimaryPistolEquipped(UnitState))
+		if (Api().HasPrimaryPistolEquipped(UnitState))
 		{
 			if (X2WeaponTemplate(UnitState.GetItemInSlot(eInvSlot_PrimaryWeapon).GetMyTemplate()).WeaponCat == 'sidearm')
 			{
@@ -716,7 +716,7 @@ static function UpdateAnimations(out array<AnimSet> CustomAnimSets, XComGameStat
 				CustomAnimSets.AddItem(AnimSet(`CONTENT.RequestGameArchetype("TruePrimarySecondaries_Pistol.Anims.AS_Armory" $ FemaleSuffix)));
 			}
 		}
-		else if (HasPrimaryMeleeEquipped(UnitState))
+		else if (Api().HasPrimaryMeleeEquipped(UnitState))
 		{
 			AnimSetPath = "TruePrimarySecondaries_PrimaryMelee.Anims.AS_Soldier" $ FemaleSuffix;
 
@@ -784,7 +784,7 @@ static function DLCAppendWeaponSockets(out array<SkeletalMeshSocket> NewSockets,
 
 	UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(ItemState.OwnerStateObject.ObjectID));
 
-	if (!HasPrimaryMeleeOrPistolEquipped(UnitState))
+	if (!Api().HasPrimaryMeleeOrPistolEquipped(UnitState))
 	{
 		return;
 	}
@@ -800,7 +800,7 @@ static function DLCAppendWeaponSockets(out array<SkeletalMeshSocket> NewSockets,
 		return;
 	}
 
-	if (IsPrimaryPistolItem(ItemState) || IsPrimaryMeleeItem(ItemState))
+	if (Api().IsPrimaryPistolItem(ItemState) || Api().IsPrimaryMeleeItem(ItemState))
 	{
 		SkeletalMeshComponent(Weapon.Mesh).GetBoneNames(BoneNames);
 		foreach BoneNames(Bone)
@@ -895,7 +895,7 @@ static function string DLCAppendSockets(XComUnitPawn Pawn)
 
 	if (!AllowUnitState(UnitState)) { return ""; }
 
-	if (HasPrimaryMeleeEquipped(UnitState))
+	if (Api().HasPrimaryMeleeEquipped(UnitState))
 	{
 		if (UnitState.kAppearance.iGender == eGender_Female)
 		{
@@ -907,270 +907,13 @@ static function string DLCAppendSockets(XComUnitPawn Pawn)
 		}
 	}
 
-	if (HasPrimaryPistolEquipped(UnitState))
+	if (Api().HasPrimaryPistolEquipped(UnitState))
 	{
 		return "TruePrimarySecondaries_Sockets.Meshes.PrimaryPistol_SocketsOverride";
 	}
 
 	return "";
 }
-
-static function bool HasPrimaryMeleeOrPistolEquipped(XComGameState_Unit UnitState, optional XComGameState CheckGameState)
-{
-	return HasPrimaryMeleeEquipped(UnitState, CheckGameState) || HasPrimaryPistolEquipped(UnitState, CheckGameState);
-}
-
-static function bool HasMeleeAndPistolEquipped(XComGameState_Unit UnitState, optional XComGameState CheckGameState)
-{
-	return (HasPrimaryMeleeEquipped(UnitState, CheckGameState) && HasSecondaryPistolEquipped(UnitState, CheckGameState)) ||
-		   (HasPrimaryPistolEquipped(UnitState, CheckGameState) && HasSecondaryMeleeEquipped(UnitState, CheckGameState));
-}
-
-static function bool HasPrimaryMeleeEquipped(XComGameState_Unit UnitState, optional XComGameState CheckGameState)
-{
-	local XComGameState_Item PrimaryWeapon;
-
-	if (UnitState == none)
-	{
-		return false;
-	}
-
-	PrimaryWeapon = UnitState.GetItemInSlot(eInvSlot_PrimaryWeapon, CheckGameState);
-
-	return PrimaryWeapon != none && IsPrimaryMeleeItem(PrimaryWeapon) &&
-		!HasDualMeleeEquipped(UnitState, CheckGameState) &&
-		!HasShieldEquipped(UnitState, CheckGameState);
-}
-
-static function bool HasPrimaryPistolEquipped(XComGameState_Unit UnitState, optional XComGameState CheckGameState)
-{
-	local XComGameState_Item PrimaryWeapon;
-
-	if (UnitState == none)
-	{
-		return false;
-	}
-
-	PrimaryWeapon = UnitState.GetItemInSlot(eInvSlot_PrimaryWeapon, CheckGameState);
-
-	return PrimaryWeapon != none && IsPrimaryPistolItem(PrimaryWeapon) &&
-		!HasDualPistolEquipped(UnitState, CheckGameState) &&
-		!HasShieldEquipped(UnitState, CheckGameState);
-}
-
-static function bool HasSecondaryMeleeEquipped(XComGameState_Unit UnitState, optional XComGameState CheckGameState)
-{
-	local XComGameState_Item SecondaryWeapon;
-
-	if (UnitState == none)
-	{
-		return false;
-	}
-
-	SecondaryWeapon = UnitState.GetItemInSlot(eInvSlot_SecondaryWeapon, CheckGameState);
-
-	return SecondaryWeapon != none && IsSecondaryMeleeItem(SecondaryWeapon);
-}
-
-static function bool HasSecondaryPistolEquipped(XComGameState_Unit UnitState, optional XComGameState CheckGameState)
-{
-	local XComGameState_Item SecondaryWeapon;
-
-	if (UnitState == none)
-	{
-		return false;
-	}
-
-	SecondaryWeapon = UnitState.GetItemInSlot(eInvSlot_SecondaryWeapon, CheckGameState);
-
-	return SecondaryWeapon != none && IsSecondaryPistolItem(SecondaryWeapon);
-}
-
-static function bool HasShieldEquipped(XComGameState_Unit UnitState, optional XComGameState CheckGameState)
-{
-	local XComGameState_Item SecondaryWeapon;
-	local X2WeaponTemplate SecondaryWeaponTemplate;
-
-	if (UnitState == none)
-	{
-		return false;
-	}
-
-	SecondaryWeapon = UnitState.GetItemInSlot(eInvSlot_SecondaryWeapon, CheckGameState);
-	if (SecondaryWeapon != none)
-	{
-		SecondaryWeaponTemplate = X2WeaponTemplate(SecondaryWeapon.GetMyTemplate());
-		return SecondaryWeaponTemplate != none && SecondaryWeaponTemplate.WeaponCat == 'shield' && default.SkipWeapons.Find(SecondaryWeaponTemplate.DataName) == INDEX_NONE;
-	}
-	return false;
-}
-
-static function bool HasDualPistolEquipped(XComGameState_Unit UnitState, optional XComGameState CheckGameState)
-{
-	local XComGameState_Item PrimaryWeapon, SecondaryWeapon;
-
-	if (UnitState == none)
-	{
-		return false;
-	}
-
-	if (UnitState == none)
-	{
-		return false;
-	}
-
-	PrimaryWeapon = UnitState.GetItemInSlot(eInvSlot_PrimaryWeapon, CheckGameState);
-	SecondaryWeapon = UnitState.GetItemInSlot(eInvSlot_SecondaryWeapon, CheckGameState);
-
-	return PrimaryWeapon != none && IsPrimaryPistolItem(PrimaryWeapon) &&
-		SecondaryWeapon != none && IsSecondaryPistolItem(SecondaryWeapon);
-}
-
-static function bool HasDualMeleeEquipped(XComGameState_Unit UnitState, optional XComGameState CheckGameState)
-{
-	local XComGameState_Item PrimaryWeapon, SecondaryWeapon;
-
-	if (UnitState == none)
-	{
-		return false;
-	}
-
-	PrimaryWeapon = UnitState.GetItemInSlot(eInvSlot_PrimaryWeapon, CheckGameState);
-	SecondaryWeapon = UnitState.GetItemInSlot(eInvSlot_SecondaryWeapon, CheckGameState);
-
-	return PrimaryWeapon != none && IsPrimaryMeleeItem(PrimaryWeapon) &&
-		SecondaryWeapon != none && IsSecondaryMeleeItem(SecondaryWeapon);
-}
-
-static function bool IsPrimaryPistolItem(XComGameState_Item ItemState)
-{
-	local X2WeaponTemplate WeaponTemplate;
-
-	if (ItemState == none)
-	{
-		return false;
-	}
-
-	WeaponTemplate = X2WeaponTemplate(ItemState.GetMyTemplate());
-
-	return WeaponTemplate != none &&
-		default.SkipWeapons.Find(WeaponTemplate.DataName) == INDEX_NONE &&
-		ItemState.InventorySlot == eInvSlot_PrimaryWeapon &&
-		default.PistolCategories.Find(WeaponTemplate.WeaponCat) != INDEX_NONE &&
-		default.WeaponCategoryBlacklist.Find(WeaponTemplate.WeaponCat) == INDEX_NONE;
-}
-
-static function bool IsPrimaryMeleeItem(XComGameState_Item ItemState)
-{
-	local X2WeaponTemplate WeaponTemplate;
-
-	if (ItemState == none)
-	{
-		return false;
-	}
-
-	WeaponTemplate = X2WeaponTemplate(ItemState.GetMyTemplate());
-
-	return WeaponTemplate != none &&
-		default.SkipWeapons.Find(WeaponTemplate.DataName) == INDEX_NONE &&
-		ItemState.InventorySlot == eInvSlot_PrimaryWeapon &&
-		WeaponTemplate.iRange == 0 &&
-		WeaponTemplate.WeaponCat != 'wristblade' &&
-		WeaponTemplate.WeaponCat != 'shield' &&
-		WeaponTemplate.WeaponCat != 'gauntlet' &&
-		default.WeaponCategoryBlacklist.Find(WeaponTemplate.WeaponCat) == INDEX_NONE;
-}
-
-static function bool IsSecondaryPistolItem(XComGameState_Item ItemState, optional bool bUseTemplateForSlotCheck = false)
-{
-	local X2WeaponTemplate WeaponTemplate;
-	local bool bIsSecondarySlot;
-
-	if (ItemState == none)
-	{
-		return false;
-	}
-
-	WeaponTemplate = X2WeaponTemplate(ItemState.GetMyTemplate());
-
-	if (WeaponTemplate == none)
-	{
-		return false;
-	}
-
-	if (bUseTemplateForSlotCheck)
-	{
-		bIsSecondarySlot = WeaponTemplate.InventorySlot == eInvSlot_SecondaryWeapon;
-	}
-	else
-	{
-		bIsSecondarySlot = ItemState.InventorySlot == eInvSlot_SecondaryWeapon;
-	}
-
-	return default.SkipWeapons.Find(WeaponTemplate.DataName) == INDEX_NONE &&
-		bIsSecondarySlot &&
-		default.PistolCategories.Find(WeaponTemplate.WeaponCat) != INDEX_NONE &&
-		InStr(WeaponTemplate.DataName, "_TMP_") == INDEX_NONE && // Filter RF Templar Weapons
-		default.WeaponCategoryBlacklist.Find(WeaponTemplate.WeaponCat) == INDEX_NONE;
-}
-
-static function bool IsSecondaryMeleeItem(XComGameState_Item ItemState, optional bool bUseTemplateForSlotCheck = false)
-{
-	local X2WeaponTemplate WeaponTemplate;
-	local bool bIsSecondarySlot;
-
-	if (ItemState == none)
-	{
-		return false;
-	}
-
-	WeaponTemplate = X2WeaponTemplate(ItemState.GetMyTemplate());
-
-	if (WeaponTemplate == none)
-	{
-		return false;
-	}
-
-	if (bUseTemplateForSlotCheck)
-	{
-		bIsSecondarySlot = WeaponTemplate.InventorySlot == eInvSlot_SecondaryWeapon;
-	}
-	else
-	{
-		bIsSecondarySlot = ItemState.InventorySlot == eInvSlot_SecondaryWeapon;
-	}
-
-	return default.SkipWeapons.Find(WeaponTemplate.DataName) == INDEX_NONE &&
-		bIsSecondarySlot &&
-		WeaponTemplate.iRange == 0 &&
-		WeaponTemplate.WeaponCat != 'wristblade' &&
-		WeaponTemplate.WeaponCat != 'shield' &&
-		WeaponTemplate.WeaponCat != 'gauntlet' &&
-		default.WeaponCategoryBlacklist.Find(WeaponTemplate.WeaponCat) == INDEX_NONE;
-}
-
-static function bool IsSecondaryMeleeWeaponTemplate(X2WeaponTemplate WeaponTemplate)
-{
-	return WeaponTemplate != none &&
-		default.SkipWeapons.Find(WeaponTemplate.DataName) == INDEX_NONE &&
-		WeaponTemplate.InventorySlot == eInvSlot_SecondaryWeapon &&
-		WeaponTemplate.iRange == 0 &&
-		WeaponTemplate.WeaponCat != 'wristblade' &&
-		WeaponTemplate.WeaponCat != 'shield' &&
-		WeaponTemplate.WeaponCat != 'gauntlet' &&
-		default.WeaponCategoryBlacklist.Find(WeaponTemplate.WeaponCat) == INDEX_NONE;
-}
-
-static function bool IsSecondaryPistolWeaponTemplate(X2WeaponTemplate WeaponTemplate)
-{
-	return WeaponTemplate != none &&
-		default.SkipWeapons.Find(WeaponTemplate.DataName) == INDEX_NONE &&
-		WeaponTemplate.InventorySlot == eInvSlot_SecondaryWeapon &&
-		default.PistolCategories.Find(WeaponTemplate.WeaponCat) != INDEX_NONE &&
-		InStr(WeaponTemplate.DataName, "_TMP_") == INDEX_NONE && // Filter RF Templar Weapons
-		default.WeaponCategoryBlacklist.Find(WeaponTemplate.WeaponCat) == INDEX_NONE;
-}
-
 
 static function bool FindIndividualWeaponConfig(XComGameState_Item ItemState, out WeaponConfig FoundWeaponConfig)
 {
@@ -1192,12 +935,20 @@ static function bool FindIndividualWeaponConfig(XComGameState_Item ItemState, ou
 
 static function bool AllowUnitState(XComGameState_Unit UnitState)
 {
-	return UnitState != none && (UnitState.IsSoldier() || (UnitState.IsAdvent() && (HasPrimaryPistolEquipped(UnitState) || HasDualPistolEquipped(UnitState))));
+	return UnitState != none && (UnitState.IsSoldier() ||
+		(UnitState.IsAdvent() && 
+			(Api().HasPrimaryPistolEquipped(UnitState) ||
+			 Api().HasDualPistolEquipped(UnitState))));
 }
 
 static function bool IsLW2Installed()
 {
 	return IsModInstalled('X2DownloadableContentInfo_LW_Overhaul');
+}
+
+static function LoadoutApiInterface Api()
+{
+	return class'LoadoutApiFactory'.static.GetLoadoutApi();
 }
 
 static function bool IsModInstalled(name X2DCLName)

@@ -29,7 +29,7 @@ static function CHEventListenerTemplate CreateItemConstructionCompletedListenerT
 static function EventListenerReturn OnItemConstructionCompleted(Object EventData, Object EventSource, XComGameState GameState, Name Event, Object CallbackData)
 {
 	// `LOG(default.class @ GetFuncName() @ XComGameState_Item(EventData).GetMyTemplateName(),, 'TruePrimarySecondaries');
-	// class'X2DownloadableContentInfo_TruePrimarySecondaries'.static.UpdateStorageForItem(XComGameState_Item(EventData).GetMyTemplate(), true);
+	// class'LoadoutApiFactory'.static.GetLoadoutApi().UpdateStorageForItem(XComGameState_Item(EventData).GetMyTemplate(), true);
 	return ELR_NoInterrupt;
 }
 
@@ -104,8 +104,8 @@ static function EventListenerReturn OnOverrideShowItemInLockerList(Object EventD
 		return ELR_NoInterrupt;
 	}
 
-	if (class'X2DownloadableContentInfo_TruePrimarySecondaries'.static.IsSecondaryPistolItem(ItemState, true) ||
-		class'X2DownloadableContentInfo_TruePrimarySecondaries'.static.IsSecondaryMeleeItem(ItemState, true)
+	if (class'LoadoutApiFactory'.static.GetLoadoutApi().IsSecondaryPistolItem(ItemState, true) ||
+		class'LoadoutApiFactory'.static.GetLoadoutApi().IsSecondaryMeleeItem(ItemState, true)
 	)
 	{
 		`LOG(GetFuncName() @ "ShowInLockerList" @ ItemState.GetMyTemplateName() @ ItemState.Quantity,, 'TruePrimarySecondaries');

@@ -73,19 +73,19 @@ static function PatchSingleMatinee(SeqAct_Interp SeqInterp)
 		//`LOG(Group.GroupName, class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLog, Class.name);
 		if (UnitMapIndex != INDEX_NONE && UnitMapping[UnitMapIndex].Unit != none)
 		{
-			if(!class'X2DownloadableContentInfo_TruePrimarySecondaries'.static.HasPrimaryMeleeOrPistolEquipped(UnitMapping[UnitMapIndex].Unit))
+			if(!class'LoadoutApiFactory'.static.GetLoadoutApi().HasPrimaryMeleeOrPistolEquipped(UnitMapping[UnitMapIndex].Unit))
 			{
 				`LOG(UnitMapping[UnitMapIndex].GroupName @ UnitMapping[UnitMapIndex].Unit.GetFullName() @ "!HasPrimaryMeleeOrPistolEquipped, skipping patch", class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLog, name("TruePrimarySecondaries" @ default.Class.name));
 				continue;
 			}
 
-			if(class'X2DownloadableContentInfo_TruePrimarySecondaries'.static.HasPrimaryMeleeEquipped(UnitMapping[UnitMapIndex].Unit))
+			if(class'LoadoutApiFactory'.static.GetLoadoutApi().HasPrimaryMeleeEquipped(UnitMapping[UnitMapIndex].Unit))
 			{
 				`LOG(UnitMapping[UnitMapIndex].GroupName @ UnitMapping[UnitMapIndex].Unit.GetFullName() @ "!HasPrimaryMeleeEquipped", class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLog, name("TruePrimarySecondaries" @ default.Class.name));
 				PatchAnimset = AnimSet(`CONTENT.RequestGameArchetype(default.PatchAnimsetPathPrimaryMelee));
 			}
 
-			if(class'X2DownloadableContentInfo_TruePrimarySecondaries'.static.HasPrimaryPistolEquipped(UnitMapping[UnitMapIndex].Unit))
+			if(class'LoadoutApiFactory'.static.GetLoadoutApi().HasPrimaryPistolEquipped(UnitMapping[UnitMapIndex].Unit))
 			{
 				if (X2WeaponTemplate(UnitMapping[UnitMapIndex].Unit.GetItemInSlot(eInvSlot_PrimaryWeapon).GetMyTemplate()).WeaponCat == 'pistol')
 				{

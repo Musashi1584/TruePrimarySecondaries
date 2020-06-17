@@ -39,6 +39,6 @@ static function bool IsPrimarySecondaryTemplate(X2WeaponTemplate WeaponTemplate,
 	}
 
 	return InventorySlot == eInvSlot_PrimaryWeapon &&
-		(class'X2DownloadableContentInfo_TruePrimarySecondaries'.static.IsSecondaryMeleeWeaponTemplate(WeaponTemplate) ||
-		class'X2DownloadableContentInfo_TruePrimarySecondaries'.static.IsSecondaryPistolWeaponTemplate(WeaponTemplate));
+		(class'LoadoutApiFactory'.static.GetLoadoutApi().IsMeleeWeaponTemplate(WeaponTemplate) ||
+		class'LoadoutApiFactory'.static.GetLoadoutApi().IsPistolWeaponTemplate(WeaponTemplate));
 }

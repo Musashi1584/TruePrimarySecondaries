@@ -20,6 +20,8 @@ tags= war of the chosen, weapon, seconary, primary, gameplay</Description>
     <Folder Include="Localization\" />
     <Folder Include="CookedPCConsole" />
     <Folder Include="Src\" />
+    <Folder Include="Src\LoadoutApi_1_0_0" />
+    <Folder Include="Src\LoadoutApi_1_0_0\Classes" />
     <Folder Include="Src\TruePrimarySecondaries" />
     <Folder Include="Src\PrimarySecondaries\" />
     <Folder Include="Src\PrimarySecondaries\Classes\" />
@@ -77,6 +79,12 @@ tags= war of the chosen, weapon, seconary, primary, gameplay</Description>
     <Content Include="Config\XComEngine.ini" />
     <Content Include="Config\XComGame.ini" />
     <Content Include="Localization\XComGame.int" />
+    <Content Include="Src\LoadoutApi_1_0_0\Classes\LoadoutApiFactory.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\LoadoutApi_1_0_0\Classes\LoadoutApiInterface.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\PrimarySecondaries\Classes\AnimNotify_FireOffHandPistol.uc">
       <SubType>Content</SubType>
     </Content>

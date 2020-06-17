@@ -11,7 +11,7 @@ event name CallAbilityMeetsCondition(XComGameState_Ability kAbility, XComGameSta
 	SourceWeapon = kAbility.GetSourceWeapon();
 
 	//	If this ability is NOT attached to a primary melee weapon
-	if (SourceWeapon == none || !class'X2DownloadableContentInfo_TruePrimarySecondaries'.static.IsPrimaryMeleeItem(SourceWeapon))
+	if (SourceWeapon == none || !class'LoadoutApiFactory'.static.GetLoadoutApi().IsPrimaryMeleeItem(SourceWeapon))
 	{ 
 		//	Have to get Owner Unit from the Ability State, `kTarget` is not relevant here.
 		UnitState = XComGameState_Unit(`XCOMHISTORY.GetGameStateForObjectID(kAbility.OwnerStateObject.ObjectID));
