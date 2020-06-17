@@ -44,9 +44,6 @@ tags= war of the chosen, weapon, seconary, primary, gameplay</Description>
     <Content Include="Content\TruePrimarySecondaries_AT.upk">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Content\PrimaryPistolsMod.upk">
-      <SubType>Content</SubType>
-    </Content>
     <Content Include="Content\TruePrimarySecondariesMod.upk">
       <SubType>Content</SubType>
     </Content>
@@ -57,6 +54,9 @@ tags= war of the chosen, weapon, seconary, primary, gameplay</Description>
       <SubType>Content</SubType>
     </Content>
     <Content Include="Content\TruePrimarySecondaries_Pistol.upk">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Content\TruePrimarySecondaries_PistolUpgrades.upk">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Content\TruePrimarySecondaries_PrimaryMelee.upk">
@@ -92,6 +92,9 @@ tags= war of the chosen, weapon, seconary, primary, gameplay</Description>
     <Content Include="Src\TruePrimarySecondaries\Classes\DropShipMatinee_Actor.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\TruePrimarySecondaries\Classes\Helper.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\TruePrimarySecondaries\Classes\MSEventListenerTemplate.uc">
       <SubType>Content</SubType>
     </Content>
@@ -101,7 +104,10 @@ tags= war of the chosen, weapon, seconary, primary, gameplay</Description>
     <Content Include="Src\TruePrimarySecondaries\Classes\ShellMapMatinee.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\TruePrimarySecondaries\Classes\UITacticalQuickLaunch_UnitSlot_PrimarySecondaries.uc">
+    <Content Include="Src\TruePrimarySecondaries\Classes\UIDebugItems_TruePrimarySecondaries.uc">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="Src\TruePrimarySecondaries\Classes\UITacticalQuickLaunch_UnitSlot_TruePrimarySecondaries.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\TruePrimarySecondaries\Classes\X2Ability_PrimarySecondaries.uc">
@@ -119,7 +125,7 @@ tags= war of the chosen, weapon, seconary, primary, gameplay</Description>
     <Content Include="Src\TruePrimarySecondaries\Classes\X2DownloadableContentInfo_TruePrimarySecondaries.uc">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="Src\TruePrimarySecondaries\Classes\X2EventListener_PrimarySecondariesTactical.uc">
+    <Content Include="Src\TruePrimarySecondaries\Classes\X2EventListener_PrimarySecondaries_Tactical.uc">
       <SubType>Content</SubType>
     </Content>
     <Content Include="Src\TruePrimarySecondaries\Classes\X2EventListener_PrimarySecondaries_Strategy.uc">

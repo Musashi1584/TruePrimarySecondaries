@@ -1,4 +1,4 @@
-class X2EventListener_PrimarySecondariesTactical extends X2EventListener;
+class X2EventListener_PrimarySecondaries_Tactical extends X2EventListener;
 
 static function array<X2DataTemplate> CreateTemplates()
 {

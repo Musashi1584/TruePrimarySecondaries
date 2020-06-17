@@ -30,6 +30,7 @@ struct ArchetypeReplacement {
 
 Struct WeaponConfig {
 	var name TemplateName;
+	var EInventorySlot ApplyToSlot;
 	var bool bKeepPawnWeaponAnimation;
 	var bool bUseSideSheaths;
 	var bool bUseEmptyHandSoldierAnimations;
@@ -57,7 +58,7 @@ var config array<ArchetypeReplacement> ArchetypeReplacements;
 var config array<PistolWeaponAttachment> PistolAttachements;
 var config array<name> PistolCategories;
 var config array<name> WeaponCategoryBlacklist;
-var config array<name> DontOverrideMeleeCategories;
+var config array<name> DontOverridePawnAndWeaponAnimsetsWeaponCategories;
 var config array<WeaponConfig> IndividualWeaponConfig;
 
 var array<name> SkipWeapons;
@@ -67,10 +68,10 @@ var config int PRIMARY_PISTOLS_CLIP_SIZE;
 var config int PRIMARY_SAWEDOFF_CLIP_SIZE;
 var config int PRIMARY_PISTOLS_DAMAGE_MODIFER;
 var config bool bPrimaryPistolsInfiniteAmmo;
-var config bool bUseVisualPistolUpgrades;
 var config bool bLog;
 var config bool bLogAnimations;
 var config bool bUseSlomoInAnimations;
+var config bool bUseVisualPistolUpgrades;
 
 static function bool CanAddItemToInventory_CH_Improved(out int bCanAddItem, const EInventorySlot Slot, const X2ItemTemplate ItemTemplate, int Quantity, XComGameState_Unit UnitState, optional XComGameState CheckGameState, optional out string DisabledReason, optional XComGameState_Item ItemState)
 {
@@ -97,17 +98,14 @@ static function MatineeGetPawnFromSaveData(XComUnitPawn UnitPawn, XComGameState_
 
 static event OnPostTemplatesCreated()
 {
-	`LOG(default.class @ GetFuncName(),, 'DLCSort');
-	ScriptTrace();
-	PatchAbilityTemplates();
-	AddAttachments();
-	//AddPrimarySecondaries();
-	//CheckUniqueWeaponCategories();
 	if (default.bUseVisualPistolUpgrades)
 	{
 		ReplacePistolArchetypes();
 	}
+
+	PatchAbilityTemplates();
 	OnPostCharacterTemplatesCreated();
+	AddAttachments();
 }
 
 static function OnPostCharacterTemplatesCreated()
@@ -141,116 +139,6 @@ static function OnPostCharacterTemplatesCreated()
 			}
 		}
 	}
-}
-
-static function PatchWeaponTemplates()
-{
-	local X2ItemTemplateManager ItemTemplateManager;
-	local array<X2DataTemplate> DifficultyVariants;
-	local array<name> TemplateNames;
-	local name TemplateName;
-	local X2DataTemplate ItemTemplate;
-	local X2WeaponTemplate WeaponTemplate;
-	local array<name> EnemyWeaponTemplates;
-
-	EnemyWeaponTemplates = GetEnemyWeaponTemplates();
-	
-	ItemTemplateManager = class'X2ItemTemplateManager'.static.GetItemTemplateManager();
-
-
-	ItemTemplateManager.GetTemplateNames(TemplateNames);
-
-	foreach TemplateNames(TemplateName)
-	{
-		if (default.SkipWeapons.Find(TemplateName) != INDEX_NONE) continue;
-		if (EnemyWeaponTemplates.Find(TemplateName) != INDEX_NONE) continue;
-
-		ItemTemplateManager.FindDataTemplateAllDifficulties(TemplateName, DifficultyVariants);
-		// Iterate over all variants
-		
-		foreach DifficultyVariants(ItemTemplate)
-		{
-			WeaponTemplate = X2WeaponTemplate(ItemTemplate);
-
-			if (WeaponTemplate == none)
-				continue;
-
-			if (IsSecondaryPistolWeaponTemplate(WeaponTemplate))
-			{
-				if (WeaponTemplate.WeaponCat == 'sawedoffshotgun')
-				{
-					WeaponTemplate.iClipSize = default.PRIMARY_SAWEDOFF_CLIP_SIZE;
-					//WeaponTemplate.Abilities.AddItem('Reload');
-				}
-				else
-				{
-					WeaponTemplate.iClipSize = default.PRIMARY_PISTOLS_CLIP_SIZE;
-				}
-			}
-		}
-	}
-}
-
-static function array<name> GetEnemyWeaponTemplates()
-{
-	local X2CharacterTemplateManager CharacterTemplateMgr;
-	local X2CharacterTemplate Template;
-	local array<X2DataTemplate> DataTemplates;
-	local int Index;
-	local array<name> TemplateNames;
-	local name TemplateName;
-	local X2ItemTemplateManager ItemTemplateManager;
-	local InventoryLoadout Loadout;
-	local InventoryLoadoutItem LoadoutItem;
-	local X2WeaponTemplate WeaponTemplate;
-	local array<name> EnemyWeaponTemplates;
-
-	ItemTemplateManager = class'X2ItemTemplateManager'.static.GetItemTemplateManager();
-
-	CharacterTemplateMgr = class'X2CharacterTemplateManager'.static.GetCharacterTemplateManager();
-	CharacterTemplateMgr.GetTemplateNames(TemplateNames);
-
-	foreach TemplateNames(TemplateName)
-	{
-		CharacterTemplateMgr.FindDataTemplateAllDifficulties(TemplateName, DataTemplates);
-		for (Index = 0; Index < DataTemplates.Length; ++Index)
-		{
-			Template = X2CharacterTemplate(DataTemplates[Index]);
-			
-			if (Template == none) {continue;}
-			if (Template.bIsSoldier) {continue;}
-			if (Template.bIsCosmetic) {continue;}
-			if (Template.bNeverSelectable) {continue;}
-			if (Template.bIsScientist) {continue;}
-			if (Template.bIsResistanceHero) {continue;}
-			
-			if (Template.bIsCivilian && !Template.bIsHostileCivilian) {continue;}
-			if (Template.CharacterGroupName == 'CivilianMilitia') {continue;}
-
-
-			foreach ItemTemplateManager.Loadouts(Loadout)
-			{
-				if(Loadout.LoadoutName == Template.DefaultLoadout)
-				{
-					foreach Loadout.Items(LoadoutItem)
-					{
-						WeaponTemplate = X2WeaponTemplate(ItemTemplateManager.FindItemTemplate(LoadoutItem.Item));
-
-						if(WeaponTemplate != none && 
-						   EnemyWeaponTemplates.Find(WeaponTemplate.DataName) == INDEX_NONE &&
-						   (IsSecondaryPistolWeaponTemplate(WeaponTemplate) || IsSecondaryMeleeWeaponTemplate(WeaponTemplate))
-						)
-						{
-							EnemyWeaponTemplates.AddItem(WeaponTemplate.DataName);
-							`LOG(GetFuncName() @ WeaponTemplate.DataName, class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLog, 'TruePrimarySecondaries');
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return EnemyWeaponTemplates;
 }
 
 static function AddAttachments()
@@ -327,19 +215,6 @@ static function AddAttachment(name TemplateName, array<PistolWeaponAttachment> A
 			Template.AddUpgradeAttachment(Attachment.AttachSocket, Attachment.UIArmoryCameraPointTag, Attachment.MeshName, Attachment.ProjectileName, Attachment.MatchWeaponTemplate, Attachment.AttachToPawn, Attachment.IconName, Attachment.InventoryIconName, Attachment.InventoryCategoryIcon, CheckFN);
 			`LOG("Attachment for "@TemplateName @Attachment.AttachSocket @Attachment.UIArmoryCameraPointTag @Attachment.MeshName @Attachment.ProjectileName @Attachment.MatchWeaponTemplate @Attachment.AttachToPawn @Attachment.IconName @Attachment.InventoryIconName @Attachment.InventoryCategoryIcon, class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLog, 'TruePrimarySecondaries');
 		}
-	}
-}
-
-static function CheckUniqueWeaponCategories()
-{
-	local X2ItemTemplateManager ItemTemplateManager;
-	local name Category;
-
-	ItemTemplateManager = class'X2ItemTemplateManager'.static.GetItemTemplateManager();
-
-	foreach ItemTemplateManager.UniqueEquipCategories(Category)
-	{
-		`LOG('UniqueEquipCategories' @ Category, class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLog, 'TruePrimarySecondaries');
 	}
 }
 
@@ -556,7 +431,7 @@ static function UpdateWeaponAttachments(out array<WeaponAttachment> Attachments,
 		return;
 	}
 
-	FindIndividualWeaponConfig(ItemState.GetMyTemplateName(), IndividualWeaponConfigLocal);
+	FindIndividualWeaponConfig(ItemState, IndividualWeaponConfigLocal);
 	if (!IndividualWeaponConfigLocal.bUseSideSheaths)
 	{
 		NewSocket = 'Sheath';
@@ -621,7 +496,7 @@ static function WeaponInitialized(XGWeapon WeaponArchetype, XComWeapon Weapon, o
 		return;
 	}
 
-	FindIndividualWeaponConfig(WeaponTemplate.DataName, IndividualWeaponConfigLocal);
+	FindIndividualWeaponConfig(ItemState, IndividualWeaponConfigLocal);
 	
 	if (IndividualWeaponConfigLocal.bKeepPawnWeaponAnimation)
 	{
@@ -724,7 +599,7 @@ static function WeaponInitialized(XGWeapon WeaponArchetype, XComWeapon Weapon, o
 			AnimSetPaths.AddItem("TruePrimarySecondaries_PrimaryMelee.Anims.AS_SecondaryPistol");
 		}
 
-		if (default.DontOverrideMeleeCategories.Find(WeaponTemplate.WeaponCat) != INDEX_NONE)
+		if (default.DontOverridePawnAndWeaponAnimsetsWeaponCategories.Find(WeaponTemplate.WeaponCat) != INDEX_NONE)
 		{
 			bResetAnimsets = false;
 			bOverride = false;
@@ -812,7 +687,7 @@ static function UpdateAnimations(out array<AnimSet> CustomAnimSets, XComGameStat
 	
 	if (HasPrimaryMeleeOrPistolEquipped(UnitState))
 	{
-		FindIndividualWeaponConfig(UnitState.GetPrimaryWeapon().GetMyTemplateName(), IndividualWeaponConfigLocal);
+		FindIndividualWeaponConfig(UnitState.GetPrimaryWeapon(), IndividualWeaponConfigLocal);
 		
 		if (IndividualWeaponConfigLocal.bUseEmptyHandSoldierAnimations)
 		{
@@ -919,7 +794,7 @@ static function DLCAppendWeaponSockets(out array<SkeletalMeshSocket> NewSockets,
 		return;
 	}
 
-	FindIndividualWeaponConfig(Template.DataName, IndividualWeaponConfigLocal);
+	FindIndividualWeaponConfig(ItemState, IndividualWeaponConfigLocal);
 	if (IndividualWeaponConfigLocal.bUseEmptyHandSoldierAnimations)
 	{
 		return;
@@ -1297,15 +1172,18 @@ static function bool IsSecondaryPistolWeaponTemplate(X2WeaponTemplate WeaponTemp
 }
 
 
-static function bool FindIndividualWeaponConfig(name TemplateName, out WeaponConfig FoundWeaponConfig)
+static function bool FindIndividualWeaponConfig(XComGameState_Item ItemState, out WeaponConfig FoundWeaponConfig)
 {
-	local int Index;
+	local WeaponConfig Conf;
 
-	Index = default.IndividualWeaponConfig.Find('TemplateName', TemplateName);
-	if (Index != INDEX_NONE)
+	foreach default.IndividualWeaponConfig(Conf)
 	{
-		FoundWeaponConfig = default.IndividualWeaponConfig[Index];
-		return true;
+		if (Conf.TemplateName == ItemState.GetMyTemplateName() &&
+			Conf.ApplyToSlot == ItemState.InventorySlot)
+		{
+			FoundWeaponConfig = Conf;
+			return true;
+		}
 	}
 
 	return false;
@@ -1428,5 +1306,18 @@ exec function DebugLeftHandSocket(
 		NewSockets.AddItem(Socket);
 
 		SkeletalMeshComponent(XComWeapon(WeaponVisualizer.m_kEntity).Mesh).AppendSockets(NewSockets, true);
+	}
+}
+
+exec function CheckUniqueWeaponCategories()
+{
+	local X2ItemTemplateManager ItemTemplateManager;
+	local name Category;
+
+	ItemTemplateManager = class'X2ItemTemplateManager'.static.GetItemTemplateManager();
+
+	foreach ItemTemplateManager.UniqueEquipCategories(Category)
+	{
+		`LOG('UniqueEquipCategories' @ Category, class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLog, 'TruePrimarySecondaries');
 	}
 }

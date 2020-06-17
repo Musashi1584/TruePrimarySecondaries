@@ -1,11 +1,11 @@
 //-----------------------------------------------------------
-//	Class:	UITacticalQuickLaunch_UnitSlot_PrimarySecondaries
+//	Class:	UITacticalQuickLaunch_UnitSlot_TruePrimarySecondaries
 //	Author: Musashi
 //	
 //-----------------------------------------------------------
 
 
-class UITacticalQuickLaunch_UnitSlot_PrimarySecondaries extends UITacticalQuickLaunch_UnitSlot;
+class UITacticalQuickLaunch_UnitSlot_TruePrimarySecondaries extends UITacticalQuickLaunch_UnitSlot;
 
 simulated function AddFullInventory(XComGameState GameState, XComGameState_Unit Unit)
 {
@@ -44,10 +44,8 @@ simulated function name PopulateItemDropdown(UIDropdown kDropdown, name nCurrent
 		if( X2EquipmentTemplate(kEquipmentTemplate) != none &&
 			X2EquipmentTemplate(kEquipmentTemplate).iItemSize > 0 &&  // xpad is only item with size 0, that is always equipped
 			(((X2EquipmentTemplate(kEquipmentTemplate).InventorySlot == eEquipmentType) || (X2EquipmentTemplate(kEquipmentTemplate).InventorySlot == eInvSlot_Utility && eEquipmentType == eInvSlot_GrenadePocket))) ||
-			(class'X2DownloadableContentInfo_TruePrimarySecondaries'.static.IsSecondaryMeleeWeaponTemplate(X2WeaponTemplate(kEquipmentTemplate)) ||
-			 class'X2DownloadableContentInfo_TruePrimarySecondaries'.static.IsSecondaryPistolWeaponTemplate(X2WeaponTemplate(kEquipmentTemplate))
-			)
-	)
+			class'Helper'.static.IsPrimarySecondaryTemplate(X2WeaponTemplate(kEquipmentTemplate), eEquipmentType)
+		)
 		{
 			if (kSoldierClassTemplate != None && kEquipmentTemplate.IsA('X2WeaponTemplate'))
 			{
