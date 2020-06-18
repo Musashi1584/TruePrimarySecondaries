@@ -73,23 +73,23 @@ var config bool bLogAnimations;
 var config bool bUseSlomoInAnimations;
 var config bool bUseVisualPistolUpgrades;
 
-static function bool CanAddItemToInventory_CH_Improved(out int bCanAddItem, const EInventorySlot Slot, const X2ItemTemplate ItemTemplate, int Quantity, XComGameState_Unit UnitState, optional XComGameState CheckGameState, optional out string DisabledReason, optional XComGameState_Item ItemState)
-{
-	local bool bEvaluate;
-
-	if (Api().IsSecondaryPistolItem(ItemState, true) || Api().IsSecondaryMeleeItem(ItemState, true))
-	{
-		bCanAddItem = 1;
-		DisabledReason = "";
-		bEvaluate = true;
-	}
-
-	if(CheckGameState == none)
-		return !bEvaluate;
-
-	return bEvaluate;
-
-}
+//static function bool CanAddItemToInventory_CH_Improved(out int bCanAddItem, const EInventorySlot Slot, const X2ItemTemplate ItemTemplate, int Quantity, XComGameState_Unit UnitState, optional XComGameState CheckGameState, optional out string DisabledReason, optional XComGameState_Item ItemState)
+//{
+//	local bool bEvaluate;
+//
+//	if (Api().IsSecondaryPistolItem(ItemState, true) || Api().IsSecondaryMeleeItem(ItemState, true))
+//	{
+//		bCanAddItem = 1;
+//		DisabledReason = "";
+//		bEvaluate = true;
+//	}
+//
+//	if(CheckGameState == none)
+//		return !bEvaluate;
+//
+//	return bEvaluate;
+//
+//}
 
 static function MatineeGetPawnFromSaveData(XComUnitPawn UnitPawn, XComGameState_Unit UnitState, XComGameState SearchState)
 {
@@ -242,7 +242,7 @@ static function ReplacePistolArchetypes()
 				WeaponTemplate.UIArmoryCameraPointTag = 'UIPawnLocation_WeaponUpgrade_Shotgun';
 
 				ItemTemplateManager.AddItemTemplate(WeaponTemplate, true);
-				`Log("Patching " @ ItemTemplate.DataName @ "with" @ Replacement.GameArchetype @ "and" @ Replacement.NumUpgradeSlots @ "upgrade slots", class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLog, 'TruePrimarySecondaries');
+				`Log("Patching" @ ItemTemplate.DataName @ "with" @ Replacement.GameArchetype @ "and" @ Replacement.NumUpgradeSlots @ "upgrade slots", class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLog, 'TruePrimarySecondaries');
 			}
 		}
 	}
@@ -553,6 +553,7 @@ static function WeaponInitialized(XGWeapon WeaponArchetype, XComWeapon Weapon, o
 		else if (Api().IsPrimaryPistolItem(ItemState) && Api().HasPrimaryPistolEquipped(UnitState))
 		{
 			Weapon.DefaultSocket = 'R_Hand';
+			`LOG(GetFuncName() @ ItemState.InventorySlot @ ItemState.GetMyTemplateName() @ "Setting DefaultSocket to R_Hand",, 'TruePrimarySecondaries');
 
 			if (IndividualWeaponConfigLocal.CustomFireAnim != 'None')
 			{
@@ -935,10 +936,7 @@ static function bool FindIndividualWeaponConfig(XComGameState_Item ItemState, ou
 
 static function bool AllowUnitState(XComGameState_Unit UnitState)
 {
-	return UnitState != none && (UnitState.IsSoldier() ||
-		(UnitState.IsAdvent() && 
-			(Api().HasPrimaryPistolEquipped(UnitState) ||
-			 Api().HasDualPistolEquipped(UnitState))));
+	return UnitState != none && UnitState.IsSoldier();
 }
 
 static function bool IsLW2Installed()

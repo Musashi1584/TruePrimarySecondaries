@@ -1,7 +1,7 @@
 //-----------------------------------------------------------
 //	Class:	LoadoutApiInterface
 //	Author: Musashi
-//	
+//	DO NOT MAKE ANY CHANGES TO THIS CLASS
 //-----------------------------------------------------------
 
 
