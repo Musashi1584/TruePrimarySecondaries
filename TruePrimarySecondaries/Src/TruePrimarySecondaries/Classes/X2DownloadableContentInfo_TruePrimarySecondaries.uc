@@ -371,11 +371,7 @@ static function X2AbilityCost_ActionPoints GetAbilityCostActionPoints(X2AbilityT
 
 static function FinalizeUnitAbilitiesForInit(XComGameState_Unit UnitState, out array<AbilitySetupData> SetupData, optional XComGameState StartState, optional XComGameState_Player PlayerState, optional bool bMultiplayerDisplay)
 {
-	//local XComGameState_Item SecondaryItemState;
-	//local array<SoldierClassAbilityType> EarnedSoldierAbilities;
 	local int Index;
-
-	`LOG(GetFuncName(), class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLog, 'TruePrimarySecondaries');
 	
 	// Associate all melee abilities with the primary weapon if primary melee weapons are equipped
 	if (UnitState.IsSoldier() && !Api().HasDualMeleeEquipped(UnitState) && Api().HasPrimaryMeleeEquipped(UnitState))
@@ -389,26 +385,6 @@ static function FinalizeUnitAbilitiesForInit(XComGameState_Unit UnitState, out a
 			}
 		}
 	}
-
-	// Associate all pistol abilities with the primary weapon if primary pistol weapons are equipped
-	//if (UnitState.IsSoldier() && !Api().HasDualPistolEquipped(UnitState) && HasPrimaryPistol(UnitState))
-	//{
-	//	EarnedSoldierAbilities = UnitState.GetEarnedSoldierAbilities();
-	//	SecondaryItemState = UnitState.GetSecondaryWeapon();
-	//	for(Index = 0; Index <= SetupData.Length; Index++)
-	//	{
-	//		if (!SetupData[Index].Template.IsMelee() &&
-	//			!SetupData[Index].Template.IsPassive &&
-	//			EarnedSoldierAbilities.Find('AbilityName', SetupData[Index].TemplateName) != INDEX_NONE)
-	//		{
-	//			if (SecondaryItemState.ObjectID == SetupData[Index].SourceWeaponRef.ObjectID)
-	//			{
-	//				SetupData[Index].SourceWeaponRef = UnitState.GetPrimaryWeapon().GetReference();
-	//				`LOG(GetFuncName() @ UnitState.GetFullName() @ "setting" @ SetupData[Index].TemplateName @ "to" @ UnitState.GetPrimaryWeapon().GetMyTemplateName(), class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLog, 'TruePrimarySecondaries');
-	//			}
-	//		}
-	//	}
-	//}
 }
 
 static function UpdateWeaponAttachments(out array<WeaponAttachment> Attachments, XComGameState_Item ItemState)
