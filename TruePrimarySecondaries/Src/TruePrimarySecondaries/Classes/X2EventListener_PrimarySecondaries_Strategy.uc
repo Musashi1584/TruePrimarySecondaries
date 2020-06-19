@@ -99,17 +99,20 @@ static function EventListenerReturn OnOverrideShowItemInLockerList(Object EventD
 
 	Slot = EInventorySlot(Tuple.Data[1].i);
 
+	`LOG(GetFuncName() @ Slot @ ItemState.GetMyTemplateName() @ ItemState.Quantity,, 'TruePrimarySecondaries');
+
 	if (Slot != eInvSlot_PrimaryWeapon)
 	{
 		return ELR_NoInterrupt;
 	}
 
+	//if (class'LoadoutApiLib'.static.IsSecondaryPistolItem(ItemState, true) ||
+	//	class'LoadoutApiLib'.static.IsSecondaryMeleeItem(ItemState, true)
 	if (class'LoadoutApiFactory'.static.GetLoadoutApi().IsSecondaryPistolItem(ItemState, true) ||
 		class'LoadoutApiFactory'.static.GetLoadoutApi().IsSecondaryMeleeItem(ItemState, true)
 	)
 	{
-		`LOG(GetFuncName() @ "ShowInLockerList" @ ItemState.GetMyTemplateName() @ ItemState.Quantity,, 'TruePrimarySecondaries');
-
+		`LOG(GetFuncName() @ "allow" @ ItemState.GetMyTemplateName(),, 'TruePrimarySecondaries');
 		Tuple.Data[0].b = true;
 		EventData = Tuple;
 	}

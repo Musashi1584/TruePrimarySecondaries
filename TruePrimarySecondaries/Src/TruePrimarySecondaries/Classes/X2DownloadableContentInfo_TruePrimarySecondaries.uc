@@ -73,23 +73,65 @@ var config bool bLogAnimations;
 var config bool bUseSlomoInAnimations;
 var config bool bUseVisualPistolUpgrades;
 
-//static function bool CanAddItemToInventory_CH_Improved(out int bCanAddItem, const EInventorySlot Slot, const X2ItemTemplate ItemTemplate, int Quantity, XComGameState_Unit UnitState, optional XComGameState CheckGameState, optional out string DisabledReason, optional XComGameState_Item ItemState)
-//{
-//	local bool bEvaluate;
-//
-//	if (Api().IsSecondaryPistolItem(ItemState, true) || Api().IsSecondaryMeleeItem(ItemState, true))
-//	{
-//		bCanAddItem = 1;
-//		DisabledReason = "";
-//		bEvaluate = true;
-//	}
-//
-//	if(CheckGameState == none)
-//		return !bEvaluate;
-//
-//	return bEvaluate;
-//
-//}
+static function bool CanAddItemToInventory_CH_Improved(out int bCanAddItem, const EInventorySlot Slot, const X2ItemTemplate ItemTemplate, int Quantity, XComGameState_Unit UnitState, optional XComGameState CheckGameState, optional out string DisabledReason, optional XComGameState_Item ItemState)
+{
+	local bool bEvaluate;
+	`LOG(GetFuncName() @ ItemTemplate.DataName @ X2WeaponTemplate(ItemTemplate).InventorySlot,, 'TruePrimarySecondaries');
+	if (Slot == eInvSlot_PrimaryWeapon &&
+		(Api().IsSecondaryPistolItem(ItemState, true) || Api().IsSecondaryMeleeItem(ItemState, true))
+		//((X2WeaponTemplate(ItemTemplate) != none && X2WeaponTemplate(ItemTemplate).WeaponCat == 'pistol' && X2WeaponTemplate(ItemTemplate).InventorySlot == eInvSlot_SecondaryWeapon) ||
+		// (X2WeaponTemplate(ItemTemplate) != none && X2WeaponTemplate(ItemTemplate).WeaponCat == 'sword' && X2WeaponTemplate(ItemTemplate).InventorySlot == eInvSlot_SecondaryWeapon))
+	)
+	{
+		`LOG(GetFuncName() @ "IsWeaponAllowedByClass 1",, 'TruePrimarySecondaries');
+		if (IsWeaponAllowedByClass(UnitState.GetSoldierClassTemplate(), ItemState, Slot))
+		{
+			bCanAddItem = 1;
+			DisabledReason = "";
+			bEvaluate = true;
+		}
+		else
+		{
+			bCanAddItem = 0;
+			DisabledReason = class'UIArmory_Loadout'.default.m_strMissingAllowedClass;
+			bEvaluate = true;
+		}
+		`LOG(GetFuncName() @ "IsWeaponAllowedByClass 2",, 'TruePrimarySecondaries');
+
+	}
+
+	if(CheckGameState == none)
+		return !bEvaluate;
+
+	return bEvaluate;
+}
+
+// Like X2SoldierClassTemplate.IsWeaponAllowedByClass but checks for primary slot specifically regardless of the slot of the template
+static function bool IsWeaponAllowedByClass(
+	X2SoldierClassTemplate ClassTemplate,
+	XComGameState_Item ItemState,
+	EInventorySlot Slot
+)
+{
+	local X2WeaponTemplate WeaponTemplate;
+	local int i;
+
+	WeaponTemplate = X2WeaponTemplate(ItemState.GetMyTemplate());
+
+	if (WeaponTemplate == none)
+	{
+		return true;
+	}
+
+	for (i = 0; i < ClassTemplate.AllowedWeapons.Length; ++i)
+	{
+		if (Slot == eInvSlot_PrimaryWeapon &&
+			ClassTemplate.AllowedWeapons[i].SlotType == eInvSlot_PrimaryWeapon &&
+			ClassTemplate.AllowedWeapons[i].WeaponType == WeaponTemplate.WeaponCat)
+			return true;
+	}
+	return false;
+}
 
 static function MatineeGetPawnFromSaveData(XComUnitPawn UnitPawn, XComGameState_Unit UnitState, XComGameState SearchState)
 {
