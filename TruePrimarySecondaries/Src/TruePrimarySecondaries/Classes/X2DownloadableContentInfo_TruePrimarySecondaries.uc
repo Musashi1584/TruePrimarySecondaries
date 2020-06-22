@@ -42,6 +42,7 @@ Struct WeaponConfig {
 		bKeepPawnWeaponAnimation = false
 		bUseSideSheaths = true
 		bUseEmptyHandSoldierAnimations = false
+		ApplyToSlot = eInvSlot_Unknown
 	}
 };
 
@@ -76,15 +77,17 @@ var config bool bUseVisualPistolUpgrades;
 static function bool CanAddItemToInventory_CH_Improved(out int bCanAddItem, const EInventorySlot Slot, const X2ItemTemplate ItemTemplate, int Quantity, XComGameState_Unit UnitState, optional XComGameState CheckGameState, optional out string DisabledReason, optional XComGameState_Item ItemState)
 {
 	local bool bEvaluate;
-	`LOG(GetFuncName() @ ItemTemplate.DataName @ X2WeaponTemplate(ItemTemplate).InventorySlot,, 'TruePrimarySecondaries');
-	if (Slot == eInvSlot_PrimaryWeapon &&
-		(Api().IsSecondaryPistolItem(ItemState, true) || Api().IsSecondaryMeleeItem(ItemState, true))
-		//((X2WeaponTemplate(ItemTemplate) != none && X2WeaponTemplate(ItemTemplate).WeaponCat == 'pistol' && X2WeaponTemplate(ItemTemplate).InventorySlot == eInvSlot_SecondaryWeapon) ||
-		// (X2WeaponTemplate(ItemTemplate) != none && X2WeaponTemplate(ItemTemplate).WeaponCat == 'sword' && X2WeaponTemplate(ItemTemplate).InventorySlot == eInvSlot_SecondaryWeapon))
-	)
+	local LoadoutApiInterface LoadoutApi;
+
+	LoadoutApi = Api();
+	
+	if (class'Helper'.static.IsPrimarySecondaryTemplate(X2WeaponTemplate(ItemTemplate), Slot))
 	{
-		`LOG(GetFuncName() @ "IsWeaponAllowedByClass 1",, 'TruePrimarySecondaries');
-		if (IsWeaponAllowedByClass(UnitState.GetSoldierClassTemplate(), ItemState, Slot))
+		if (IsWeaponAllowedByClass(
+			UnitState.GetSoldierClassTemplate(),
+			X2WeaponTemplate(ItemTemplate),
+			Slot)
+		)
 		{
 			bCanAddItem = 1;
 			DisabledReason = "";
@@ -96,12 +99,12 @@ static function bool CanAddItemToInventory_CH_Improved(out int bCanAddItem, cons
 			DisabledReason = class'UIArmory_Loadout'.default.m_strMissingAllowedClass;
 			bEvaluate = true;
 		}
-		`LOG(GetFuncName() @ "IsWeaponAllowedByClass 2",, 'TruePrimarySecondaries');
-
 	}
 
 	if(CheckGameState == none)
+	{
 		return !bEvaluate;
+	}
 
 	return bEvaluate;
 }
@@ -109,25 +112,22 @@ static function bool CanAddItemToInventory_CH_Improved(out int bCanAddItem, cons
 // Like X2SoldierClassTemplate.IsWeaponAllowedByClass but checks for primary slot specifically regardless of the slot of the template
 static function bool IsWeaponAllowedByClass(
 	X2SoldierClassTemplate ClassTemplate,
-	XComGameState_Item ItemState,
+	X2WeaponTemplate WeaponTemplate,
 	EInventorySlot Slot
 )
 {
-	local X2WeaponTemplate WeaponTemplate;
-	local int i;
-
-	WeaponTemplate = X2WeaponTemplate(ItemState.GetMyTemplate());
-
+	local int Index;
+	
 	if (WeaponTemplate == none)
 	{
 		return true;
 	}
 
-	for (i = 0; i < ClassTemplate.AllowedWeapons.Length; ++i)
+	for (Index = 0; Index < ClassTemplate.AllowedWeapons.Length; ++Index)
 	{
 		if (Slot == eInvSlot_PrimaryWeapon &&
-			ClassTemplate.AllowedWeapons[i].SlotType == eInvSlot_PrimaryWeapon &&
-			ClassTemplate.AllowedWeapons[i].WeaponType == WeaponTemplate.WeaponCat)
+			ClassTemplate.AllowedWeapons[Index].SlotType == eInvSlot_PrimaryWeapon &&
+			ClassTemplate.AllowedWeapons[Index].WeaponType == WeaponTemplate.WeaponCat)
 			return true;
 	}
 	return false;
@@ -140,6 +140,8 @@ static function MatineeGetPawnFromSaveData(XComUnitPawn UnitPawn, XComGameState_
 
 static event OnPostTemplatesCreated()
 {
+	//RemovePrimarySuffix();
+
 	if (default.bUseVisualPistolUpgrades)
 	{
 		ReplacePistolArchetypes();
@@ -148,6 +150,37 @@ static event OnPostTemplatesCreated()
 	PatchAbilityTemplates();
 	OnPostCharacterTemplatesCreated();
 	AddAttachments();
+}
+
+static function RemovePrimarySuffix()
+{
+	local InventoryLoadout Loadout;
+	local X2ItemTemplateManager ItemTemplateManager;
+	local int Index;
+
+	ItemTemplateManager = class'X2ItemTemplateManager'.static.GetItemTemplateManager();
+
+	// Fix loadouts based on old primary secondaries mod
+	for (Index = 0; Index < ItemTemplateManager.Loadouts.Length; Index++)
+	{
+		Loadout = ItemTemplateManager.Loadouts[Index];
+
+		if (Loadout.Items.Length > 0 && InStr(Loadout.Items[0].Item, "_Primary") != INDEX_NONE)
+		{
+			Loadout.Items[0].Item = 
+				name(Repl(Loadout.Items[0].Item, "_Primary", ""));
+			
+			ItemTemplateManager.Loadouts[Index] = Loadout;
+			
+			`LOG(GetFuncName() @
+				ItemTemplateManager.Name @
+				ItemTemplateManager.Loadouts[Index].LoadoutName @
+				ItemTemplateManager.Loadouts[Index].Items[0].Item,
+				class'Helper'.static.ShouldLog(),
+				'TruePrimarySecondaries'
+			);
+		}
+	}
 }
 
 static function OnPostCharacterTemplatesCreated()
@@ -255,7 +288,20 @@ static function AddAttachment(name TemplateName, array<PistolWeaponAttachment> A
 					break;
 			}
 			Template.AddUpgradeAttachment(Attachment.AttachSocket, Attachment.UIArmoryCameraPointTag, Attachment.MeshName, Attachment.ProjectileName, Attachment.MatchWeaponTemplate, Attachment.AttachToPawn, Attachment.IconName, Attachment.InventoryIconName, Attachment.InventoryCategoryIcon, CheckFN);
-			`LOG("Attachment for "@TemplateName @Attachment.AttachSocket @Attachment.UIArmoryCameraPointTag @Attachment.MeshName @Attachment.ProjectileName @Attachment.MatchWeaponTemplate @Attachment.AttachToPawn @Attachment.IconName @Attachment.InventoryIconName @Attachment.InventoryCategoryIcon, class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLog, 'TruePrimarySecondaries');
+			`LOG("Attachment for" @
+				TemplateName @
+				Attachment.AttachSocket @
+				Attachment.UIArmoryCameraPointTag @
+				Attachment.MeshName @
+				Attachment.ProjectileName @
+				Attachment.MatchWeaponTemplate @
+				Attachment.AttachToPawn @
+				Attachment.IconName @
+				Attachment.InventoryIconName @
+				Attachment.InventoryCategoryIcon,
+				class'Helper'.static.ShouldLog(),
+				'TruePrimarySecondaries'
+			);
 		}
 	}
 }
@@ -284,7 +330,7 @@ static function ReplacePistolArchetypes()
 				WeaponTemplate.UIArmoryCameraPointTag = 'UIPawnLocation_WeaponUpgrade_Shotgun';
 
 				ItemTemplateManager.AddItemTemplate(WeaponTemplate, true);
-				`Log("Patching" @ ItemTemplate.DataName @ "with" @ Replacement.GameArchetype @ "and" @ Replacement.NumUpgradeSlots @ "upgrade slots", class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLog, 'TruePrimarySecondaries');
+				`Log("Patching" @ ItemTemplate.DataName @ "with" @ Replacement.GameArchetype @ "and" @ Replacement.NumUpgradeSlots @ "upgrade slots", class'Helper'.static.ShouldLog(), 'TruePrimarySecondaries');
 			}
 		}
 	}
@@ -333,7 +379,7 @@ static function PatchAbilityTemplates()
 					Template.AbilityCosts.AddItem(NewAmmoCosts);
 				}
 
-				`LOG("Patching Template" @ AbilityAmmoCost.Ability @ "adding" @ AbilityAmmoCost.Ammo @ "ammo cost", class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLog, 'TruePrimarySecondaries');
+				`LOG("Patching Template" @ AbilityAmmoCost.Ability @ "adding" @ AbilityAmmoCost.Ammo @ "ammo cost", class'Helper'.static.ShouldLog(), 'TruePrimarySecondaries');
 			}
 		}
 	}
@@ -350,7 +396,7 @@ static function PatchAbilityTemplates()
 			{
 				ActionPointCost.DoNotConsumeAllSoldierAbilities.AddItem('QuickDrawPrimary');
 				ActionPointCost.DoNotConsumeAllSoldierAbilities.AddItem('Quickdraw');
-				`LOG("Patching Template" @ TemplateName @ "adding QuickDrawPrimary and Quickdraw to DoNotConsumeAllSoldierAbilities", class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLog, 'TruePrimarySecondaries');
+				`LOG("Patching Template" @ TemplateName @ "adding QuickDrawPrimary and Quickdraw to DoNotConsumeAllSoldierAbilities", class'Helper'.static.ShouldLog(), 'TruePrimarySecondaries');
 			}
 		}
 	}
@@ -391,7 +437,7 @@ static function PatchAbilityTemplates()
 				ShooterExclusionsCondition.AddExcludeEffect('Freeze', 'AA_UnitIsFrozen');
 
 				Template.AbilityShooterConditions[i] = ShooterExclusionsCondition;
-				`LOG("Patching SwordSlice ability template so that it can be used even while disoriented if attached to primary melee weapon.", class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLog, 'TruePrimarySecondaries');
+				`LOG("Patching SwordSlice ability template so that it can be used even while disoriented if attached to primary melee weapon.", class'Helper'.static.ShouldLog(), 'TruePrimarySecondaries');
 				break;
 			}
 		}			
@@ -423,7 +469,7 @@ static function FinalizeUnitAbilitiesForInit(XComGameState_Unit UnitState, out a
 			if (SetupData[Index].Template != none && SetupData[Index].Template.IsMelee() && SetupData[Index].TemplateName != 'DualSlashSecondary')
 			{
 				SetupData[Index].SourceWeaponRef = UnitState.GetPrimaryWeapon().GetReference();
-				`LOG(GetFuncName() @ UnitState.GetFullName() @ "setting" @ SetupData[Index].TemplateName @ "to" @ UnitState.GetPrimaryWeapon().GetMyTemplateName(), class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLog, 'TruePrimarySecondaries');
+				`LOG(GetFuncName() @ UnitState.GetFullName() @ "setting" @ SetupData[Index].TemplateName @ "to" @ UnitState.GetPrimaryWeapon().GetMyTemplateName(), class'Helper'.static.ShouldLog(), 'TruePrimarySecondaries');
 			}
 		}
 	}
@@ -474,7 +520,7 @@ static function UpdateWeaponAttachments(out array<WeaponAttachment> Attachments,
 					Scale.Z = 0.85f;
 					XGUnit(UnitState.GetVisualizer()).GetPawn().Mesh.GetSocketByName(NewSocket).RelativeScale = Scale;
 				}
-				`LOG(GetFuncName() @ UnitState.GetFullName() @ ItemState.GetMyTemplateName() @ NewSocket @ "bUseSideSheaths" @ IndividualWeaponConfigLocal.bUseSideSheaths, class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLog, 'TruePrimarySecondaries');
+				`LOG(GetFuncName() @ UnitState.GetFullName() @ ItemState.GetMyTemplateName() @ NewSocket @ "bUseSideSheaths" @ IndividualWeaponConfigLocal.bUseSideSheaths, class'Helper'.static.ShouldLog(), 'TruePrimarySecondaries');
 			}
 		}
 	}
@@ -521,7 +567,7 @@ static function WeaponInitialized(XGWeapon WeaponArchetype, XComWeapon Weapon, o
 		return;
 	}
 
-	//`LOG(GetFuncName() @ "Spawn" @ WeaponArchetype @ ItemState.GetMyTemplateName() @ Weapon.CustomUnitPawnAnimsets.Length, class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLog, 'TruePrimarySecondaries');
+	//`LOG(GetFuncName() @ "Spawn" @ WeaponArchetype @ ItemState.GetMyTemplateName() @ Weapon.CustomUnitPawnAnimsets.Length, class'Helper'.static.ShouldLog(), 'TruePrimarySecondaries');
 
 	if (IndividualWeaponConfigLocal.bUseEmptyHandSoldierAnimations)
 	{
@@ -571,7 +617,7 @@ static function WeaponInitialized(XGWeapon WeaponArchetype, XComWeapon Weapon, o
 		else if (Api().IsPrimaryPistolItem(ItemState) && Api().HasPrimaryPistolEquipped(UnitState))
 		{
 			Weapon.DefaultSocket = 'R_Hand';
-			`LOG(GetFuncName() @ ItemState.InventorySlot @ ItemState.GetMyTemplateName() @ "Setting DefaultSocket to R_Hand",, 'TruePrimarySecondaries');
+			`LOG(GetFuncName() @ ItemState.InventorySlot @ ItemState.GetMyTemplateName() @ "Setting DefaultSocket to R_Hand", class'Helper'.static.ShouldLog(), 'TruePrimarySecondaries');
 
 			if (IndividualWeaponConfigLocal.CustomFireAnim != 'None')
 			{
@@ -647,7 +693,7 @@ static function WeaponInitialized(XGWeapon WeaponArchetype, XComWeapon Weapon, o
 			foreach AnimSetPaths(AnimSetPath)
 			{
 				Weapon.CustomUnitPawnAnimsets.AddItem(AnimSet(`CONTENT.RequestGameArchetype(AnimSetPath)));
-				`LOG(GetFuncName() @ "----> Adding" @ AnimSetPath @ "to CustomUnitPawnAnimsets of" @ WeaponTemplate.DataName @ "Weapon.DefaultSocket" @ Weapon.DefaultSocket, class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLog, 'TruePrimarySecondaries');
+				`LOG(GetFuncName() @ "----> Adding" @ AnimSetPath @ "to CustomUnitPawnAnimsets of" @ WeaponTemplate.DataName @ "Weapon.DefaultSocket" @ Weapon.DefaultSocket, class'Helper'.static.ShouldLog(), 'TruePrimarySecondaries');
 			}
 
 			// Apply the original animations on top
@@ -666,7 +712,7 @@ static function WeaponInitialized(XGWeapon WeaponArchetype, XComWeapon Weapon, o
 
 			//foreach Weapon.CustomUnitPawnAnimsets(Anim)
 			//{
-			//	`LOG(Pathname(Anim), class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLog, 'TruePrimarySecondaries');
+			//	`LOG(Pathname(Anim), class'Helper'.static.ShouldLog(), 'TruePrimarySecondaries');
 			//}
 		}
 	}
@@ -695,7 +741,7 @@ static function UpdateAnimations(out array<AnimSet> CustomAnimSets, XComGameStat
 	local int Index;
 	local WeaponConfig IndividualWeaponConfigLocal;
 
-	//`LOG(default.class @ GetFuncName(),, 'DLCSort');
+	//`LOG(default.class @ GetFuncName(), class'Helper'.static.ShouldLog(), 'DLCSort');
 	
 	if (!AllowUnitState(UnitState))
 	{
@@ -749,24 +795,24 @@ static function UpdateAnimations(out array<AnimSet> CustomAnimSets, XComGameStat
 
 			AddAnimSet(Pawn, AnimSet(`CONTENT.RequestGameArchetype(AnimSetPath)), Pawn.DefaultUnitPawnAnimsets.Length);
 
-			`LOG(GetFuncName() @ "Adding" @ AnimSetPath @ "to" @ UnitState.GetFullName(), class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLogAnimations, 'TruePrimarySecondaries');
+			`LOG(GetFuncName() @ "Adding" @ AnimSetPath @ "to" @ UnitState.GetFullName(), class'Helper'.static.ShouldLogAnimations(), 'TruePrimarySecondaries');
 		}
 		
 		Index = 0;
 		foreach Pawn.Mesh.AnimSets(Anim)
 		{
-			`LOG(GetFuncName() @ "Pawn.Mesh.AnimSets" @ Index @ Pathname(Anim), class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLogAnimations, 'TruePrimarySecondaries');
+			`LOG(GetFuncName() @ "Pawn.Mesh.AnimSets" @ Index @ Pathname(Anim), class'Helper'.static.ShouldLogAnimations(), 'TruePrimarySecondaries');
 			Index++;
 		}
 
 		Index = 0;
 		foreach Pawn.DefaultUnitPawnAnimsets(Anim)
 		{
-			`LOG(GetFuncName() @ "DefaultUnitPawnAnimsets" @ Index @ Pathname(Anim) @ Anim.ObjectArchetype @ Anim.Name, class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLogAnimations, 'TruePrimarySecondaries');
+			`LOG(GetFuncName() @ "DefaultUnitPawnAnimsets" @ Index @ Pathname(Anim) @ Anim.ObjectArchetype @ Anim.Name, class'Helper'.static.ShouldLogAnimations(), 'TruePrimarySecondaries');
 			Index++;
 		}
 
-		`LOG(GetFuncName() @ "--------------------------------------------------------------", class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLogAnimations, 'TruePrimarySecondaries');
+		`LOG(GetFuncName() @ "--------------------------------------------------------------", class'Helper'.static.ShouldLogAnimations(), 'TruePrimarySecondaries');
 
 		//Pawn.Mesh.UpdateAnimations();
 	}
@@ -784,7 +830,7 @@ static function AddAnimSet(XComUnitPawn Pawn, AnimSet AnimSetToAdd, optional int
 		{
 			Pawn.Mesh.AnimSets.AddItem(AnimSetToAdd);
 		}
-		`LOG(GetFuncName() @ "adding" @ AnimSetToAdd @ "at Index" @ Index, class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLogAnimations, 'TruePrimarySecondaries');
+		`LOG(GetFuncName() @ "adding" @ AnimSetToAdd @ "at Index" @ Index, class'Helper'.static.ShouldLogAnimations(), 'TruePrimarySecondaries');
 	}
 }
 
@@ -824,7 +870,7 @@ static function DLCAppendWeaponSockets(out array<SkeletalMeshSocket> NewSockets,
 		SkeletalMeshComponent(Weapon.Mesh).GetBoneNames(BoneNames);
 		foreach BoneNames(Bone)
 		{
-			`LOG(GetFuncName() @ ItemState.GetMyTemplateName() @ "Bone" @ Bone, class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLog, 'TruePrimarySecondaries');
+			`LOG(GetFuncName() @ ItemState.GetMyTemplateName() @ "Bone" @ Bone, class'Helper'.static.ShouldLog(), 'TruePrimarySecondaries');
 			if (Instr(Locs(Bone), "root") != INDEX_NONE)
 			{
 				BoneNameToUse = Bone;
@@ -835,7 +881,7 @@ static function DLCAppendWeaponSockets(out array<SkeletalMeshSocket> NewSockets,
 		if (BoneNameToUse == 'None')
 		{
 			BoneNameToUse = SkeletalMeshComponent(Weapon.Mesh).GetBoneName(0);
-			`LOG(GetFuncName() @ ItemState.GetMyTemplateName() @ "No root Bone found. Using bone on index 0" @ BoneNameToUse, class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLog, 'TruePrimarySecondaries');
+			`LOG(GetFuncName() @ ItemState.GetMyTemplateName() @ "No root Bone found. Using bone on index 0" @ BoneNameToUse, class'Helper'.static.ShouldLog(), 'TruePrimarySecondaries');
 		}
 
 		if (Template.WeaponCat == 'sword')
@@ -855,7 +901,7 @@ static function DLCAppendWeaponSockets(out array<SkeletalMeshSocket> NewSockets,
 			Socket.RelativeRotation = RelativeRotation;
 			NewSockets.AddItem(Socket);
 
-			`LOG(GetFuncName() @ ItemState.GetMyTemplateName() @ "Overriding" @ Socket.SocketName @ "socket on" @ Bone @ `showvar(RelativeLocation) @ `showvar(RelativeRotation), class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLog, 'TruePrimarySecondaries');
+			`LOG(GetFuncName() @ ItemState.GetMyTemplateName() @ "Overriding" @ Socket.SocketName @ "socket on" @ Bone @ `showvar(RelativeLocation) @ `showvar(RelativeRotation), class'Helper'.static.ShouldLog(), 'TruePrimarySecondaries');
 		}
 
 		if (Template.WeaponCat == 'pistol')
@@ -875,7 +921,7 @@ static function DLCAppendWeaponSockets(out array<SkeletalMeshSocket> NewSockets,
 			Socket.RelativeRotation = RelativeRotation;
 			NewSockets.AddItem(Socket);
 
-			`LOG(GetFuncName() @ ItemState.GetMyTemplateName() @ "Overriding" @ Socket.SocketName @ "socket on" @ Bone @ `showvar(RelativeLocation) @ `showvar(RelativeRotation), class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLog, 'TruePrimarySecondaries');
+			`LOG(GetFuncName() @ ItemState.GetMyTemplateName() @ "Overriding" @ Socket.SocketName @ "socket on" @ Bone @ `showvar(RelativeLocation) @ `showvar(RelativeRotation), class'Helper'.static.ShouldLog(), 'TruePrimarySecondaries');
 		}
 
 		if (Template.WeaponCat == 'sidearm')
@@ -895,7 +941,7 @@ static function DLCAppendWeaponSockets(out array<SkeletalMeshSocket> NewSockets,
 			Socket.RelativeRotation = RelativeRotation;
 			NewSockets.AddItem(Socket);
 
-			`LOG(GetFuncName() @ ItemState.GetMyTemplateName() @ "Overriding" @ Socket.SocketName @ "socket on" @ Bone @ `showvar(RelativeLocation) @ `showvar(RelativeRotation), class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLog, 'TruePrimarySecondaries');
+			`LOG(GetFuncName() @ ItemState.GetMyTemplateName() @ "Overriding" @ Socket.SocketName @ "socket on" @ Bone @ `showvar(RelativeLocation) @ `showvar(RelativeRotation), class'Helper'.static.ShouldLog(), 'TruePrimarySecondaries');
 		}
 	}
 }
@@ -905,7 +951,7 @@ static function string DLCAppendSockets(XComUnitPawn Pawn)
 	local XComHumanPawn HumanPawn;
 	local XComGameState_Unit UnitState;
 
-	//`LOG("DLCAppendSockets" @ Pawn,, 'DualWieldMelee');
+	//`LOG("DLCAppendSockets" @ Pawn, class'Helper'.static.ShouldLog(), 'DualWieldMelee');
 
 	HumanPawn = XComHumanPawn(Pawn);
 	if (HumanPawn == none) { return ""; }
@@ -937,14 +983,32 @@ static function string DLCAppendSockets(XComUnitPawn Pawn)
 static function bool FindIndividualWeaponConfig(XComGameState_Item ItemState, out WeaponConfig FoundWeaponConfig)
 {
 	local WeaponConfig Conf;
+	local string WeaponTemplateName, ConfigTemplateName;
+	local EInventorySlot InventorySlot;
+
+	WeaponTemplateName = string(ItemState.GetMyTemplateName());
 
 	foreach default.IndividualWeaponConfig(Conf)
 	{
-		if (Conf.TemplateName == ItemState.GetMyTemplateName() &&
-			Conf.ApplyToSlot == ItemState.InventorySlot)
+		// BC Support
+		ConfigTemplateName = string(Conf.TemplateName);
+		if (class'Helper'.static.HasAndReplacePrimarySuffix(ConfigTemplateName))
 		{
-			FoundWeaponConfig = Conf;
-			return true;
+			if (ConfigTemplateName == WeaponTemplateName)
+			{
+				FoundWeaponConfig = Conf;
+				return true;
+			}
+		}
+		else
+		{
+			if (Conf.TemplateName == name(WeaponTemplateName) &&
+				Conf.ApplyToSlot == ItemState.InventorySlot)
+			{
+			
+				FoundWeaponConfig = Conf;
+				return true;
+			}
 		}
 	}
 
@@ -974,7 +1038,7 @@ static function bool IsModInstalled(name X2DCLName)
 	{
 		if (Mod.Class.Name == X2DCLName)
 		{
-			`Log("Mod installed:" @ Mod.Class, class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLog);
+			`Log("Mod installed:" @ Mod.Class, class'Helper'.static.ShouldLog());
 			return true;
 		}
 	}
@@ -1025,7 +1089,7 @@ exec function PS_DebugAnimSetList()
 		Index = 0;
 		foreach Pawn.Mesh.AnimSets(Anim)
 		{
-			`LOG(GetFuncName() @ "Pawn.Mesh.AnimSets" @ Index @ Pathname(Anim), class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLog, 'TruePrimarySecondaries');
+			`LOG(GetFuncName() @ "Pawn.Mesh.AnimSets" @ Index @ Pathname(Anim), class'Helper'.static.ShouldLog(), 'TruePrimarySecondaries');
 			Index++;
 		}
 	}
@@ -1085,6 +1149,6 @@ exec function CheckUniqueWeaponCategories()
 
 	foreach ItemTemplateManager.UniqueEquipCategories(Category)
 	{
-		`LOG('UniqueEquipCategories' @ Category, class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLog, 'TruePrimarySecondaries');
+		`LOG('UniqueEquipCategories' @ Category, class'Helper'.static.ShouldLog(), 'TruePrimarySecondaries');
 	}
 }

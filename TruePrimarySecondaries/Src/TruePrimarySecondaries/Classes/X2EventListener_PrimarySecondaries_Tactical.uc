@@ -31,13 +31,18 @@ static function EventListenerReturn OnOverrideClipSize(Object EventData, Object 
 	Tuple = XComLWTuple(EventData);
 	ItemState = XComGameState_Item(EventSource);
 
+	if (ItemState == none)
+	{
+		return ELR_NoInterrupt;
+	}
+
 	if (class'LoadoutApiFactory'.static.GetLoadoutApi().IsSecondaryPistolItem(ItemState))
 	{
 		Tuple.Data[0].i = 99;
 	}
 	else if (class'LoadoutApiFactory'.static.GetLoadoutApi().IsPrimaryPistolItem(ItemState))
 	{
-		Tuple.Data[0].i = 6;
+		Tuple.Data[0].i = class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.PRIMARY_PISTOLS_CLIP_SIZE;
 	}
 
 	return ELR_NoInterrupt;

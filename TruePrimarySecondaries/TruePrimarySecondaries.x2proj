@@ -115,6 +115,9 @@ tags= war of the chosen, weapon, seconary, primary, gameplay</Description>
     <Content Include="Src\TruePrimarySecondaries\Classes\UIDebugItems_TruePrimarySecondaries.uc">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="Src\TruePrimarySecondaries\Classes\UITacticalQuickLaunch_UnitAbilities_TruePrimarySecondaries.uc">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="Src\TruePrimarySecondaries\Classes\UITacticalQuickLaunch_UnitSlot_TruePrimarySecondaries.uc">
       <SubType>Content</SubType>
     </Content>

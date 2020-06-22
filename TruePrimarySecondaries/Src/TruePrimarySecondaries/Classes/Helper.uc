@@ -31,14 +31,36 @@ static function bool TriggerShowItemInLockerList(
 	return Tuple.Data[0].b;
 }
 
-static function bool IsPrimarySecondaryTemplate(X2WeaponTemplate WeaponTemplate, EInventorySlot InventorySlot)
+static function bool IsPrimarySecondaryTemplate(X2WeaponTemplate WeaponTemplate, optional EInventorySlot InventorySlot = eInvSlot_PrimaryWeapon)
 {
+	local LoadoutApiInterface LoadoutApi;
+
 	if (WeaponTemplate == none)
 	{
 		return false;
 	}
 
-	return InventorySlot == eInvSlot_PrimaryWeapon &&
-		(class'LoadoutApiFactory'.static.GetLoadoutApi().IsMeleeWeaponTemplate(WeaponTemplate) ||
-		class'LoadoutApiFactory'.static.GetLoadoutApi().IsPistolWeaponTemplate(WeaponTemplate));
+	LoadoutApi = class'LoadoutApiFactory'.static.GetLoadoutApi();
+
+	return InventorySlot == eInvSlot_PrimaryWeapon && (LoadoutApi.IsMeleeWeaponTemplate(WeaponTemplate) || LoadoutApi.IsPistolWeaponTemplate(WeaponTemplate));
+}
+
+static function bool HasAndReplacePrimarySuffix(out coerce string TemplateName)
+{
+	if (InStr(TemplateName, "_Primary") != INDEX_NONE)
+	{
+		TemplateName = Repl(TemplateName, "_Primary", "");
+		return true;
+	}
+	return false;
+}
+
+static function bool ShouldLog()
+{
+	return class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLog;
+}
+
+static function bool ShouldLogAnimations()
+{
+	return class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLogAnimations;
 }

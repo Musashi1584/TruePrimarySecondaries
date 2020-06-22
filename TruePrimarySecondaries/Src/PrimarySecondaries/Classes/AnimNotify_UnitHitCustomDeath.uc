@@ -18,14 +18,14 @@ event Notify(Actor Owner, AnimNodeSequence AnimSeqInstigator)
 		OwnerUnit = Pawn.GetGameUnit();
 		if (OwnerUnit != none)
 		{
-			`LOG(default.class @ "Owner" @ String(OwnerUnit),, 'TruePrimarySecondaries');
+			`LOG(default.class @ "Owner" @ String(OwnerUnit), class'Helper'.static.ShouldLog(), 'TruePrimarySecondaries');
 			VisualizationManager = `XCOMVISUALIZATIONMGR;
 			FireAction = X2Action_Fire(VisualizationManager.GetCurrentActionForVisualizer(OwnerUnit));
 			if (FireAction != none)
 			{
 				TargetUnit = XGUnit(`XCOMHISTORY.GetGameStateForObjectID(FireAction.PrimaryTargetID).GetVisualizer());
 				TargetPawn = TargetUnit.GetPawn();
-				`LOG(default.class @ "Target" @ TargetUnit @ TargetPawn @ FireAction,, 'TruePrimarySecondaries');
+				`LOG(default.class @ "Target" @ TargetUnit @ TargetPawn @ FireAction, class'Helper'.static.ShouldLog(), 'TruePrimarySecondaries');
 				if (TargetPawn != none)
 				{
 					DeathAction = X2Action_Death(VisualizationManager.GetNodeOfType(VisualizationManager.VisualizationTree, class'X2Action_Death', TargetUnit));
@@ -38,7 +38,7 @@ event Notify(Actor Owner, AnimNodeSequence AnimSeqInstigator)
 					FireAction.NotifyTargetsAbilityApplied();
 
 					
-					`LOG(default.class @ "NotifyTargetsAbilityApplied" @ self @ FireAction @ DeathAction,, 'TruePrimarySecondaries');
+					`LOG(default.class @ "NotifyTargetsAbilityApplied" @ self @ FireAction @ DeathAction, class'Helper'.static.ShouldLog(), 'TruePrimarySecondaries');
 					
 				}
 			}

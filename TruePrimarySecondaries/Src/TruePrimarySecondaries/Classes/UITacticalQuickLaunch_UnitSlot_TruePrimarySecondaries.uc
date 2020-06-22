@@ -7,6 +7,8 @@
 
 class UITacticalQuickLaunch_UnitSlot_TruePrimarySecondaries extends UITacticalQuickLaunch_UnitSlot;
 
+var array<ClassAgnosticAbility> m_AWCAbilities;
+
 simulated function AddFullInventory(XComGameState GameState, XComGameState_Unit Unit)
 {
 	// Add inventory
@@ -104,3 +106,19 @@ simulated function name PopulateItemDropdown(UIDropdown kDropdown, name nCurrent
 	return nCurrentEquipped;
 }
 
+simulated function LoadTemplatesFromCharacter(XComGameState_Unit Unit, XComGameState FromGameState)
+{
+	super.LoadTemplatesFromCharacter(Unit, FromGameState);
+
+	m_AWCAbilities = Unit.AWCAbilities;
+}
+
+simulated function UpdateUnit(XComGameState_Unit Unit, XComGameState UseGameState)
+{
+	super.UpdateUnit(Unit, UseGameState);
+
+	if (Unit.IsSoldier())
+	{
+		Unit.AWCAbilities = m_AWCAbilities;
+	}
+}

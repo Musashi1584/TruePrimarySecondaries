@@ -23,7 +23,7 @@ static function PatchAllLoadedMatinees(XComUnitPawn UnitPawn, XComGameState_Unit
 
 		if (MatineeObject.ObjComment == "XCOMSoldier" || MatineeObject.ObjComment == "XCOMSoldierPreview")
 		{
-			`LOG("Package" @ PackageNames[0] @ MatineeObject.ObjComment, class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLog, name("TruePrimarySecondaries" @ default.Class.name));
+			`LOG("Package" @ PackageNames[0] @ MatineeObject.ObjComment, class'Helper'.static.ShouldLog(), name("TruePrimarySecondaries" @ default.Class.name));
 			PatchSingleMatinee(SeqAct_Interp(MatineeObject), UnitPawn, UnitState, SearchState);
 		}
 	}
@@ -52,19 +52,19 @@ static function PatchSingleMatinee(SeqAct_Interp SeqInterp,
 	if(class'LoadoutApiFactory'.static.GetLoadoutApi().HasPrimaryMeleeEquipped(UnitState, SearchState))
 	{
 		PatchAnimset = AnimSet(`CONTENT.RequestGameArchetype(default.PatchAnimsetPathPrimaryMelee $ FemaleSuffix));
-		`LOG(UnitState.GetFirstName @ "has primary melee eqipped. Adding" @ default.PatchAnimsetPathPrimaryMelee $ FemaleSuffix, class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLog, name("TruePrimarySecondaries" @ default.Class.name));
+		`LOG(UnitState.GetFirstName @ "has primary melee eqipped. Adding" @ default.PatchAnimsetPathPrimaryMelee $ FemaleSuffix, class'Helper'.static.ShouldLog(), name("TruePrimarySecondaries" @ default.Class.name));
 	}
 
 	if(class'LoadoutApiFactory'.static.GetLoadoutApi().HasPrimaryPistolEquipped(UnitState, SearchState))
 	{
 		if (X2WeaponTemplate(UnitState.GetItemInSlot(eInvSlot_PrimaryWeapon, SearchState).GetMyTemplate()).WeaponCat == 'pistol')
 		{
-			`LOG(UnitState.GetFirstName @ "has primary pistol eqipped. Adding" @ default.PatchAnimsetPathPrimaryPistol $ FemaleSuffix, class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLog, name("TruePrimarySecondaries" @ default.Class.name));
+			`LOG(UnitState.GetFirstName @ "has primary pistol eqipped. Adding" @ default.PatchAnimsetPathPrimaryPistol $ FemaleSuffix, class'Helper'.static.ShouldLog(), name("TruePrimarySecondaries" @ default.Class.name));
 			PatchAnimset = AnimSet(`CONTENT.RequestGameArchetype(default.PatchAnimsetPathPrimaryPistol $ FemaleSuffix));
 		}
 		else if (X2WeaponTemplate(UnitState.GetItemInSlot(eInvSlot_PrimaryWeapon, SearchState).GetMyTemplate()).WeaponCat == 'sidearm')
 		{
-			`LOG(UnitState.GetFirstName @ "has primary autopistol eqipped. Adding" @ default.PatchAnimsetPathPrimaryPistol $ FemaleSuffix, class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLog, name("TruePrimarySecondaries" @ default.Class.name));
+			`LOG(UnitState.GetFirstName @ "has primary autopistol eqipped. Adding" @ default.PatchAnimsetPathPrimaryPistol $ FemaleSuffix, class'Helper'.static.ShouldLog(), name("TruePrimarySecondaries" @ default.Class.name));
 			PatchAnimset = AnimSet(`CONTENT.RequestGameArchetype(default.PatchAnimsetPathPrimaryAutoPistol $ FemaleSuffix));
 		}
 	}
@@ -74,7 +74,7 @@ static function PatchSingleMatinee(SeqAct_Interp SeqInterp,
 	foreach PatchAnimset.Sequences(Sequence)
 	{
 		PatchSequenceNames.AddItem(name(Repl(Sequence.SequenceName, default.AnimSequencePrefix, "")));
-		`LOG("Adding sequence " @ name(Repl(Sequence.SequenceName, default.AnimSequencePrefix, "")), class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLog, name("TruePrimarySecondaries" @ default.Class.name));
+		`LOG("Adding sequence " @ name(Repl(Sequence.SequenceName, default.AnimSequencePrefix, "")), class'Helper'.static.ShouldLog(), name("TruePrimarySecondaries" @ default.Class.name));
 	}
 
 
@@ -86,15 +86,15 @@ static function PatchSingleMatinee(SeqAct_Interp SeqInterp,
 		{
 			if(!class'LoadoutApiFactory'.static.GetLoadoutApi().HasPrimaryMeleeOrPistolEquipped(UnitState, SearchState))
 			{
-				`LOG(UnitState.GetItemInSlot(eInvSlot_PrimaryWeapon, SearchState) @ UnitState.GetItemInSlot(eInvSlot_SecondaryWeapon, SearchState), class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLog, name("TruePrimarySecondaries" @ default.Class.name));
-				`LOG(UnitState.GetFullName() @ "!HasPrimaryMeleeOrPistolEquipped, skipping patching", class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLog, name("TruePrimarySecondaries" @ default.Class.name));
+				`LOG(UnitState.GetItemInSlot(eInvSlot_PrimaryWeapon, SearchState) @ UnitState.GetItemInSlot(eInvSlot_SecondaryWeapon, SearchState), class'Helper'.static.ShouldLog(), name("TruePrimarySecondaries" @ default.Class.name));
+				`LOG(UnitState.GetFullName() @ "!HasPrimaryMeleeOrPistolEquipped, skipping patching", class'Helper'.static.ShouldLog(), name("TruePrimarySecondaries" @ default.Class.name));
 				continue;
 			}
 
 			if (Group.GroupAnimSets.Find(PatchAnimset) == INDEX_NONE)
 			{
 				Group.GroupAnimSets.AddItem(PatchAnimset);
-				`LOG("Add animset" @ PatchAnimset @ "to" @ Group.GroupName @ Group.GroupAnimSets.Length, class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLog, name("TruePrimarySecondaries" @ default.Class.name));
+				`LOG("Add animset" @ PatchAnimset @ "to" @ Group.GroupName @ Group.GroupAnimSets.Length, class'Helper'.static.ShouldLog(), name("TruePrimarySecondaries" @ default.Class.name));
 			}
 
 			foreach Group.InterpTracks(Track)
@@ -106,13 +106,13 @@ static function PatchSingleMatinee(SeqAct_Interp SeqInterp,
 					{
 						if (PatchSequenceNames.Find(AnimControl.AnimSeqs[KeyIndex].AnimSeqName) != INDEX_NONE)
 						{
-							`LOG("Found animsequence" @ Group.GroupName @ AnimControl.AnimSeqs[KeyIndex].AnimSeqName, class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLog, name("TruePrimarySecondaries" @ default.Class.name));
+							`LOG("Found animsequence" @ Group.GroupName @ AnimControl.AnimSeqs[KeyIndex].AnimSeqName, class'Helper'.static.ShouldLog(), name("TruePrimarySecondaries" @ default.Class.name));
 							AnimControl.AnimSeqs[KeyIndex].AnimSeqName = name(default.AnimSequencePrefix $ AnimControl.AnimSeqs[KeyIndex].AnimSeqName);
-							`LOG("Patching" @ Group.GroupName @ UnitState.GetFullName() @ AnimControl.AnimSeqs[KeyIndex].AnimSeqName, class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLog, name("TruePrimarySecondaries" @ default.Class.name));
+							`LOG("Patching" @ Group.GroupName @ UnitState.GetFullName() @ AnimControl.AnimSeqs[KeyIndex].AnimSeqName, class'Helper'.static.ShouldLog(), name("TruePrimarySecondaries" @ default.Class.name));
 						}
 						else
 						{
-							`LOG("Could NOT find" @ Group.GroupName @ AnimControl.AnimSeqs[KeyIndex].AnimSeqName @ "in patch list", class'X2DownloadableContentInfo_TruePrimarySecondaries'.default.bLog, name("TruePrimarySecondaries" @ default.Class.name));
+							`LOG("Could NOT find" @ Group.GroupName @ AnimControl.AnimSeqs[KeyIndex].AnimSeqName @ "in patch list", class'Helper'.static.ShouldLog(), name("TruePrimarySecondaries" @ default.Class.name));
 						}
 					}
 				}

@@ -26,14 +26,14 @@ event Notify(Actor Owner, AnimNodeSequence AnimSeqInstigator)
 		OwnerUnit = Pawn.GetGameUnit();
 		if (OwnerUnit != none)
 		{
-			`LOG("AnimNotify_TriggerHitReaction Owner" @ String(OwnerUnit),, 'TruePrimarySecondaries');
+			`LOG("AnimNotify_TriggerHitReaction Owner" @ String(OwnerUnit), class'Helper'.static.ShouldLog(), 'TruePrimarySecondaries');
 			VisualizationManager = `XCOMVISUALIZATIONMGR;
 			FireAction = X2Action_Fire(VisualizationManager.GetCurrentActionForVisualizer(OwnerUnit));
 			if (FireAction != none)
 			{
 				TargetUnit = XGUnit(`XCOMHISTORY.GetGameStateForObjectID(FireAction.PrimaryTargetID).GetVisualizer());
 				TargetPawn = TargetUnit.GetPawn();
-				`LOG("AnimNotify_TriggerHitReaction Target" @ TargetUnit @ TargetPawn @ FireAction,, 'TruePrimarySecondaries');
+				`LOG("AnimNotify_TriggerHitReaction Target" @ TargetUnit @ TargetPawn @ FireAction, class'Helper'.static.ShouldLog(), 'TruePrimarySecondaries');
 				if (TargetPawn != none)
 				{
 					
@@ -69,7 +69,7 @@ event Notify(Actor Owner, AnimNodeSequence AnimSeqInstigator)
 						);
 					}
 
-					`LOG("AnimNotify_TriggerHitReaction triggered" @ AnimParams.AnimName @ DamageTypeName @ HitResult @ BloodAmount,, 'TruePrimarySecondaries');
+					`LOG("AnimNotify_TriggerHitReaction triggered" @ AnimParams.AnimName @ DamageTypeName @ HitResult @ BloodAmount, class'Helper'.static.ShouldLog(), 'TruePrimarySecondaries');
 					
 				}
 			}
