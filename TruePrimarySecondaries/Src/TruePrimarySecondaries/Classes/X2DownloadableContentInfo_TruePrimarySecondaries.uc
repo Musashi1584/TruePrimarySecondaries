@@ -81,7 +81,8 @@ static function bool CanAddItemToInventory_CH_Improved(out int bCanAddItem, cons
 
 	LoadoutApi = Api();
 	
-	if (class'Helper'.static.IsPrimarySecondaryTemplate(X2WeaponTemplate(ItemTemplate), Slot))
+	if (!UnitState.bIgnoreItemEquipRestrictions &&
+		class'Helper'.static.IsPrimarySecondaryTemplate(X2WeaponTemplate(ItemTemplate), Slot))
 	{
 		if (IsWeaponAllowedByClass(
 			UnitState.GetSoldierClassTemplate(),
@@ -91,12 +92,6 @@ static function bool CanAddItemToInventory_CH_Improved(out int bCanAddItem, cons
 		{
 			bCanAddItem = 1;
 			DisabledReason = "";
-			bEvaluate = true;
-		}
-		else
-		{
-			bCanAddItem = 0;
-			DisabledReason = class'UIArmory_Loadout'.default.m_strMissingAllowedClass;
 			bEvaluate = true;
 		}
 	}

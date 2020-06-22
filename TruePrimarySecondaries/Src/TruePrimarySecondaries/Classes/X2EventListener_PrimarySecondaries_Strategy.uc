@@ -6,7 +6,8 @@ static function array<X2DataTemplate> CreateTemplates()
 
 	Templates.AddItem(CreateOverrideShowItemInLockerListListenerTemplate());
 	Templates.AddItem(CreateSquaddieItemStateAppliedListenerTemplate());
-	
+	Templates.AddItem(CreateOnBestGearLoadoutAppliedListenerTemplate());
+
 	return Templates;
 }
 
@@ -36,6 +37,21 @@ static function CHEventListenerTemplate CreateSquaddieItemStateAppliedListenerTe
 
 	Template.AddCHEvent('SquaddieItemStateApplied', OnSquaddieItemStateApplied, ELD_OnStateSubmitted);
 	`LOG("Register Event SquaddieItemStateApplied", class'Helper'.static.ShouldLog(), 'TruePrimarySecondaries');
+
+	return Template;
+}
+
+static function CHEventListenerTemplate CreateOnBestGearLoadoutAppliedListenerTemplate()
+{
+	local CHEventListenerTemplate Template;
+
+	`CREATE_X2TEMPLATE(class'CHEventListenerTemplate', Template, 'PrimarySecondariesOnBestGearLoadoutAppliedListener');
+
+	Template.RegisterInTactical = false;
+	Template.RegisterInStrategy = true;
+
+	Template.AddCHEvent('OnBestGearLoadoutApplied', OnOnBestGearLoadoutApplied, ELD_OnStateSubmitted);
+	`LOG("Register Event OnBestGearLoadoutApplied", class'Helper'.static.ShouldLog(), 'TruePrimarySecondaries');
 
 	return Template;
 }
@@ -76,6 +92,10 @@ static function EventListenerReturn OnOverrideShowItemInLockerList(Object EventD
 
 static function EventListenerReturn OnSquaddieItemStateApplied(Object EventData, Object EventSource, XComGameState GameState, Name Event, Object CallbackData)
 {
+}
+
+static function EventListenerReturn OnOnBestGearLoadoutApplied(Object EventData, Object EventSource, XComGameState GameState, Name Event, Object CallbackData)
+{
 	local XComGameState NewGameState;
 	local XComGameState_Item ItemState;
 	local XComGameState_Unit UnitState;
@@ -87,15 +107,9 @@ static function EventListenerReturn OnSquaddieItemStateApplied(Object EventData,
 	local bool bFoundLoadout;
 	local int Index;
 	local string ItemTemplateName;
+	local array<X2WeaponTemplate> BestPrimaryWeaponTemplates;
 
-	ItemState = XComGameState_Item(EventData);
-	UnitState = XComGameState_Unit(EventSource);
-
-	// We assume the secondary weapon worked and hook in here, ignore all other slots
-	if (ItemState.InventorySlot != eInvSlot_SecondaryWeapon)
-	{
-		return ELR_NoInterrupt;
-	}
+	UnitState = XComGameState_Unit(EventData);
 
 	SquaddieLoadout = UnitState.GetSoldierClassTemplate().SquaddieLoadout;
 	ItemTemplateMan = class'X2ItemTemplateManager'.static.GetItemTemplateManager();
@@ -112,9 +126,6 @@ static function EventListenerReturn OnSquaddieItemStateApplied(Object EventData,
 	{
 		return ELR_NoInterrupt;
 	}
-
-	NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("TruePrimarySecondaries SquaddieItemStateApplied");
-	UnitState = XComGameState_Unit(NewGameState.ModifyStateObject(UnitState.Class, UnitState.ObjectID));
 
 	for (Index = 0; Index < Loadout.Items.Length; Index++)
 	{
@@ -136,9 +147,11 @@ static function EventListenerReturn OnSquaddieItemStateApplied(Object EventData,
 			continue;
 		}
 	
-		if (class'Helper'.static.IsPrimarySecondaryTemplate(WeaponTemplate))
+		if (class'Helper'.static.IsPrimarySecondaryTemplate(WeaponTemplate, eInvSlot_PrimaryWeapon))
 		{
-			
+			NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("TruePrimarySecondaries SquaddieItemStateApplied");
+			UnitState = XComGameState_Unit(NewGameState.ModifyStateObject(UnitState.Class, UnitState.ObjectID));
+
 			//  If there is an item occupying the slot remove it.
 			ItemState = UnitState.GetItemInSlot(eInvSlot_PrimaryWeapon, NewGameState);
 
@@ -154,6 +167,7 @@ static function EventListenerReturn OnSquaddieItemStateApplied(Object EventData,
 					continue;
 				}
 			}
+			
 			if (!UnitState.CanAddItemToInventory(ItemTemplate, eInvSlot_PrimaryWeapon, NewGameState))
 			{
 				`LOG(GetFuncName() @ "Unable to add new item to inventory. Squaddie loadout will be affected." @ ItemTemplate.DataName, class'Helper'.static.ShouldLog(), 'TruePrimarySecondaries');
@@ -179,7 +193,8 @@ static function EventListenerReturn OnSquaddieItemStateApplied(Object EventData,
 				ItemState.WeaponAppearance.nmWeaponPattern = UnitState.kAppearance.nmWeaponPattern;
 			}
 
-			if (!UnitState.AddItemToInventory(ItemState, eInvSlot_PrimaryWeapon, NewGameState))
+			UnitState.bIgnoreItemEquipRestrictions = true;
+			if (UnitState.AddItemToInventory(ItemState, eInvSlot_PrimaryWeapon, NewGameState))
 			{
 				`LOG(GetFuncName() @ "Added new item to inventory" @ ItemState.GetMyTemplateName(), class'Helper'.static.ShouldLog(), 'TruePrimarySecondaries');
 			}
@@ -187,19 +202,74 @@ static function EventListenerReturn OnSquaddieItemStateApplied(Object EventData,
 			{
 				`LOG(GetFuncName() @ "Unable to add new item to inventory. Squaddie loadout will be affected." @ ItemState.GetMyTemplateName(), class'Helper'.static.ShouldLog(), 'TruePrimarySecondaries');
 			}
+			UnitState.bIgnoreItemEquipRestrictions = false;
 
-			
+			BestPrimaryWeaponTemplates = GetBestPrimaryWeaponTemplates(WeaponTemplate);
+			UnitState.UpgradeEquipment(NewGameState, ItemState, BestPrimaryWeaponTemplates, eInvSlot_PrimaryWeapon);
+
+			if (NewGameState.GetNumGameStateObjects() > 0)
+			{
+				`LOG(GetFuncName() @ "Submitting Game State", class'Helper'.static.ShouldLog(), 'TruePrimarySecondaries');
+				`GAMERULES.SubmitGameState(NewGameState);
+			}
+			else
+			{
+				`LOG(GetFuncName() @ "CleanupPendingGameState", class'Helper'.static.ShouldLog(), 'TruePrimarySecondaries');
+				`XCOMHISTORY.CleanupPendingGameState(NewGameState);
+			}
 		}
 	}
 
-	if (NewGameState.GetNumGameStateObjects() > 0)
-	{
-		`LOG(default.class @ GetFuncName() @ "Submitting Game State", class'Helper'.static.ShouldLog(), 'TruePrimarySecondaries');
-		`GAMERULES.SubmitGameState(NewGameState);
-	}
-	else
-	{
-		`XCOMHISTORY.CleanupPendingGameState(NewGameState);
-	}
+	
 	return ELR_NoInterrupt;
+
+}
+
+static function array<X2WeaponTemplate> GetBestPrimaryWeaponTemplates(
+	X2WeaponTemplate DefaultLoadoutWeapon
+)
+{
+	local XComGameStateHistory History;
+	local XComGameState_HeadquartersXCom XComHQ;
+	local array<X2EquipmentTemplate> DefaultEquipment;
+	local X2WeaponTemplate WeaponTemplate, BestWeaponTemplate;
+	local array<X2WeaponTemplate> BestWeaponTemplates;
+	local XComGameState_Item ItemState;
+	local int idx, HighestTier;
+
+	History = `XCOMHISTORY;
+	XComHQ = class'UIUtilities_Strategy'.static.GetXComHQ();
+
+	BestWeaponTemplate = DefaultLoadoutWeapon;
+	BestWeaponTemplates.AddItem(BestWeaponTemplate);
+	HighestTier = BestWeaponTemplate.Tier;
+
+	if( XComHQ != none )
+	{
+		// Try to find a better primary weapon as an infinite item in the inventory
+		for (idx = 0; idx < XComHQ.Inventory.Length; idx++)
+		{
+			ItemState = XComGameState_Item(History.GetGameStateForObjectID(XComHQ.Inventory[idx].ObjectID));
+			WeaponTemplate = X2WeaponTemplate(ItemState.GetMyTemplate());
+
+			if (WeaponTemplate != none && WeaponTemplate.bInfiniteItem && (BestWeaponTemplate == none || (BestWeaponTemplates.Find(WeaponTemplate) == INDEX_NONE && WeaponTemplate.Tier >= BestWeaponTemplate.Tier)) && 
+				WeaponTemplate.WeaponCat == DefaultLoadoutWeapon.WeaponCat)
+			{
+				BestWeaponTemplate = WeaponTemplate;
+				BestWeaponTemplates.AddItem(BestWeaponTemplate);
+				HighestTier = BestWeaponTemplate.Tier;
+			}
+		}
+	}
+
+	for(idx = 0; idx < BestWeaponTemplates.Length; idx++)
+	{
+		if(BestWeaponTemplates[idx].Tier < HighestTier)
+		{
+			BestWeaponTemplates.Remove(idx, 1);
+			idx--;
+		}
+	}
+
+	return BestWeaponTemplates;
 }
