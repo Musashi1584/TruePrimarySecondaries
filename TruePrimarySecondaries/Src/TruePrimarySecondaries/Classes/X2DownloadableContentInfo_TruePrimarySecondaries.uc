@@ -77,9 +77,6 @@ var config bool bUseVisualPistolUpgrades;
 static function bool CanAddItemToInventory_CH_Improved(out int bCanAddItem, const EInventorySlot Slot, const X2ItemTemplate ItemTemplate, int Quantity, XComGameState_Unit UnitState, optional XComGameState CheckGameState, optional out string DisabledReason, optional XComGameState_Item ItemState)
 {
 	local bool bEvaluate;
-	local LoadoutApiInterface LoadoutApi;
-
-	LoadoutApi = Api();
 	
 	if (!UnitState.bIgnoreItemEquipRestrictions &&
 		class'Helper'.static.IsPrimarySecondaryTemplate(X2WeaponTemplate(ItemTemplate), Slot))
@@ -979,7 +976,6 @@ static function bool FindIndividualWeaponConfig(XComGameState_Item ItemState, ou
 {
 	local WeaponConfig Conf;
 	local string WeaponTemplateName, ConfigTemplateName;
-	local EInventorySlot InventorySlot;
 
 	WeaponTemplateName = string(ItemState.GetMyTemplateName());
 

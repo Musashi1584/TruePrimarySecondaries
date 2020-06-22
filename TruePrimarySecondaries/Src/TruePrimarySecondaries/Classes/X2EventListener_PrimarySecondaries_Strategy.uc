@@ -231,7 +231,6 @@ static function array<X2WeaponTemplate> GetBestPrimaryWeaponTemplates(
 {
 	local XComGameStateHistory History;
 	local XComGameState_HeadquartersXCom XComHQ;
-	local array<X2EquipmentTemplate> DefaultEquipment;
 	local X2WeaponTemplate WeaponTemplate, BestWeaponTemplate;
 	local array<X2WeaponTemplate> BestWeaponTemplates;
 	local XComGameState_Item ItemState;
