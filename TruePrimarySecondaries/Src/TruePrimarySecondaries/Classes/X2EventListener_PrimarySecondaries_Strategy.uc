@@ -59,6 +59,7 @@ static function CHEventListenerTemplate CreateOnBestGearLoadoutAppliedListenerTe
 static function EventListenerReturn OnOverrideShowItemInLockerList(Object EventData, Object EventSource, XComGameState GameState, Name Event, Object CallbackData)
 {
 	local XComGameState_Item ItemState;
+	local XComGameState_Unit UnitState;
 	local LoadoutApiInterface LoadoutApi;
 	local XComLWTuple Tuple;
 	local EInventorySlot Slot;
@@ -68,25 +69,28 @@ static function EventListenerReturn OnOverrideShowItemInLockerList(Object EventD
 	LoadoutApi = class'LoadoutApiFactory'.static.GetLoadoutApi();
 
 	Slot = EInventorySlot(Tuple.Data[1].i);
-
-	`LOG(GetFuncName() @ Slot @ ItemState.GetMyTemplateName() @ ItemState.Quantity, class'Helper'.static.ShouldLog(), 'TruePrimarySecondaries');
+	UnitState = XComGameState_Unit(Tuple.Data[2].o);
 
 	if (Slot != eInvSlot_PrimaryWeapon)
 	{
 		return ELR_NoInterrupt;
 	}
 
-	//if (class'LoadoutApiLib'.static.IsSecondaryPistolItem(ItemState, true) ||
-	//	class'LoadoutApiLib'.static.IsSecondaryMeleeItem(ItemState, true)
-	if (LoadoutApi.IsSecondaryPistolItem(ItemState, true) ||
-		LoadoutApi.IsSecondaryMeleeItem(ItemState, true)
+	if ((LoadoutApi.IsSecondaryPistolItem(ItemState, true) ||
+		LoadoutApi.IsSecondaryMeleeItem(ItemState, true)) &&
+		class'X2DownloadableContentInfo_TruePrimarySecondaries'.static.IsWeaponAllowedByClass(
+			UnitState.GetSoldierClassTemplate(),
+			X2WeaponTemplate(ItemState.GetMyTemplate()),
+			Slot)
 	)
 	{
-		`LOG(GetFuncName() @ "allow" @ ItemState.GetMyTemplateName(), class'Helper'.static.ShouldLog(), 'TruePrimarySecondaries');
+		`LOG(GetFuncName() @ "allow" @ ItemState.GetMyTemplateName() @ X2WeaponTemplate(ItemState.GetMyTemplate()).WeaponCat, class'Helper'.static.ShouldLog(), 'TruePrimarySecondaries');
 		Tuple.Data[0].b = true;
 		EventData = Tuple;
 	}
 	
+	`LOG(GetFuncName() @ "ignore" @ ItemState.GetMyTemplateName(), class'Helper'.static.ShouldLog(), 'TruePrimarySecondaries');
+
 	return ELR_NoInterrupt;
 }
 

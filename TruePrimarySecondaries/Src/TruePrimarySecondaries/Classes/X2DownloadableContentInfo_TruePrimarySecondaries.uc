@@ -81,7 +81,8 @@ static function bool CanAddItemToInventory_CH_Improved(out int bCanAddItem, cons
 	if (!UnitState.bIgnoreItemEquipRestrictions &&
 		class'Helper'.static.IsPrimarySecondaryTemplate(X2WeaponTemplate(ItemTemplate), Slot))
 	{
-		if (IsWeaponAllowedByClass(
+		if (Slot == eInvSlot_PrimaryWeapon &&
+			IsWeaponAllowedByClass(
 			UnitState.GetSoldierClassTemplate(),
 			X2WeaponTemplate(ItemTemplate),
 			Slot)
@@ -90,6 +91,7 @@ static function bool CanAddItemToInventory_CH_Improved(out int bCanAddItem, cons
 			bCanAddItem = 1;
 			DisabledReason = "";
 			bEvaluate = true;
+			`Log(GetFuncName() @ "Allow" @ ItemTemplate.DataName @ Slot, class'Helper'.static.ShouldLog() , 'TruePrimarySecondaries');
 		}
 	}
 
@@ -97,6 +99,8 @@ static function bool CanAddItemToInventory_CH_Improved(out int bCanAddItem, cons
 	{
 		return !bEvaluate;
 	}
+
+	`Log(GetFuncName() @ "Ignore" @ ItemTemplate.DataName, class'Helper'.static.ShouldLog() , 'TruePrimarySecondaries');
 
 	return bEvaluate;
 }
@@ -117,10 +121,19 @@ static function bool IsWeaponAllowedByClass(
 
 	for (Index = 0; Index < ClassTemplate.AllowedWeapons.Length; ++Index)
 	{
-		if (Slot == eInvSlot_PrimaryWeapon &&
-			ClassTemplate.AllowedWeapons[Index].SlotType == eInvSlot_PrimaryWeapon &&
+		if (ClassTemplate.AllowedWeapons[Index].SlotType == Slot &&
 			ClassTemplate.AllowedWeapons[Index].WeaponType == WeaponTemplate.WeaponCat)
+		{
+			`Log(GetFuncName() @ "Allow" @
+				ClassTemplate.DataName @
+				WeaponTemplate.DataName @
+				ClassTemplate.AllowedWeapons[Index].SlotType @
+				ClassTemplate.AllowedWeapons[Index].WeaponType,
+				class'Helper'.static.ShouldLog(),
+				'TruePrimarySecondaries'
+			);
 			return true;
+		}
 	}
 	return false;
 }
