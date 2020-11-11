@@ -112,7 +112,9 @@ static function EventListenerReturn OnOnBestGearLoadoutApplied(Object EventData,
 	local int Index;
 	local string ItemTemplateName;
 	local array<X2WeaponTemplate> BestPrimaryWeaponTemplates;
+	local XComGameState_HeadquartersXCom	XComHQ;
 
+	XComHQ = `XCOMHQ;
 	UnitState = XComGameState_Unit(EventData);
 
 	SquaddieLoadout = UnitState.GetSoldierClassTemplate().SquaddieLoadout;
@@ -156,16 +158,24 @@ static function EventListenerReturn OnOnBestGearLoadoutApplied(Object EventData,
 			NewGameState = class'XComGameStateContext_ChangeContainer'.static.CreateChangeState("TruePrimarySecondaries SquaddieItemStateApplied");
 			UnitState = XComGameState_Unit(NewGameState.ModifyStateObject(UnitState.Class, UnitState.ObjectID));
 
-			//  If there is an item occupying the slot remove it.
+			//  If there is an item occupying the slot then unequip it and put in HQ inventory
 			ItemState = UnitState.GetItemInSlot(eInvSlot_PrimaryWeapon, NewGameState);
 
 			if (ItemState != none)
 			{
+				//	The item we wanted to equip is already equipped, go to next item
 				if (ItemState.GetMyTemplateName() == ItemTemplate.DataName)
 				{
 					continue;
 				}
-				if (!UnitState.RemoveItemFromInventory(ItemState, NewGameState))
+
+				ItemState = XComGameState_Item(NewGameState.ModifyStateObject(class'XComGameState_Item', ItemState.ObjectID));
+				if (UnitState.RemoveItemFromInventory(ItemState, NewGameState))
+				{
+					XComHQ = XComGameState_HeadquartersXCom(NewGameState.ModifyStateObject(class'XComGameState_HeadquartersXCom', XComHQ.ObjectID));
+					XComHQ.PutItemInInventory(NewGameState, ItemState);
+				}
+				else
 				{
 					`LOG(GetFuncName() @ "Unable to remove item from inventory. Squaddie loadout will be affected." @ ItemState.ToString(), class'Helper'.static.ShouldLog(), 'TruePrimarySecondaries');
 					continue;
