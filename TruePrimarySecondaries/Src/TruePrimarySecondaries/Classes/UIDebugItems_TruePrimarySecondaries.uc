@@ -267,11 +267,8 @@ simulated function PopulateItemDropdown(UIDropdown kDropdown, EInventorySlot eEq
 }
 
 simulated function OnGiveItemButtonClicked(UIButton button)
-{	
-	local XComTacticalCheatManager TacticalCheatManager;	
-
-	TacticalCheatManager = `CHEATMGR;	
-	TacticalCheatManager.GiveItem( ItemDropdownR.GetSelectedItemText() );
+{
+	class'X2DownloadableContentInfo_TruePrimarySecondaries'.static.PS_GiveItem(ItemDropdownR.GetSelectedItemText(), EInventorySlot(TypeDropdown.SelectedItem));
 
 	PopulateUpgradeDropdown(UpgradeDropdownR);
 }
